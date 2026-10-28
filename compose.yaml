@@ -20,6 +20,7 @@ services:
       HOST_PORT: ${HOST_PORT:-8155}
       DATABASE_URL: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
       PUBLIC_DOMAIN: ${PUBLIC_DOMAIN:-http://localhost}
+      PUBLIC_ORIGINS: ${PUBLIC_ORIGINS:-http://localhost:8155,http://127.0.0.1:8155,http://192.168.1.197:8155,https://botanica.p20.dev}
     depends_on:
       bootstrap:
         condition: service_completed_successfully

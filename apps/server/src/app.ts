@@ -1,3 +1,11 @@
+import {
+  registerAuth,
+  authenticate,
+  checkCsrf,
+  type Identity,
+} from "./auth.js";
+import { registerGameRoutes } from "./game-routes.js";
+import type { FastifyRequest } from "fastify";
 import type { Pool } from "pg";
 import { ApiError } from "./errors.js";
 import { registerPlantRoutes } from "./plant-routes.js";
@@ -10,8 +18,21 @@ export function createApp(
   checkDatabase: () => Promise<unknown>,
   logger = false,
   pool?: Pool,
+  identityForTest?: (request: FastifyRequest) => Promise<Identity>,
 ) {
-  const app = Fastify({ logger, bodyLimit: 65536 });
+  const app = Fastify({
+    logger: logger
+      ? {
+          redact: [
+            "req.headers.cookie",
+            "req.headers.authorization",
+            "req.headers.x-csrf-token",
+            "res.headers.set-cookie",
+          ],
+        }
+      : false,
+    bodyLimit: 65536,
+  });
   app.get("/health", async (_request, reply) => {
     try {
       await checkDatabase();
@@ -27,7 +48,33 @@ export function createApp(
   });
   registerGeneticsRoutes(app);
   registerPreviewRoute(app);
-  if (pool) registerPlantRoutes(app, pool);
+  if (pool) {
+    registerAuth(app, pool);
+    app.addHook("preHandler", async (request) => {
+      const path = request.url.split("?")[0];
+      if (
+        !path.startsWith("/api/v1/") ||
+        path.startsWith("/api/v1/auth/") ||
+        [
+          "/api/v1/me",
+          "/api/v1/catalog/species",
+          "/api/v1/phenotype/resolve",
+          "/api/v1/preview",
+        ].includes(path)
+      )
+        return;
+      request.identity = identityForTest
+        ? await identityForTest(request)
+        : await authenticate(pool, request);
+      if (
+        !["GET", "HEAD", "OPTIONS"].includes(request.method) &&
+        !identityForTest
+      )
+        checkCsrf(request, request.identity);
+    });
+    registerPlantRoutes(app, pool);
+    registerGameRoutes(app, pool);
+  }
   app.setNotFoundHandler((_request, reply) =>
     reply
       .code(404)

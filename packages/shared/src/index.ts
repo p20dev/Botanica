@@ -38,6 +38,12 @@ export const pageQuerySchema = z.strictObject({
   limit: z.coerce.number().int().min(1).max(100).default(24),
 });
 export interface PlantDto {
+  gameEligible?: boolean;
+  firstDiscovery?: boolean;
+  saleCoins?: number | null;
+  isFavorite?: boolean;
+  isProtected?: boolean;
+  soldAt?: string | null;
   id: string;
   name: string;
   ownerId: string;
@@ -92,3 +98,4 @@ export interface CollectionStats {
   total: number;
   byRarity: Partial<Record<PlantDto["rarity"]["tier"], number>>;
 }
+export * from "./game.js";

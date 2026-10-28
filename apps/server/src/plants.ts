@@ -22,6 +22,7 @@ import type {
 } from "@botanica/shared";
 import { DEMO_PLAYER_ID } from "./constants.js";
 import { ApiError } from "./errors.js";
+import { saleValue } from "./game-config.js";
 export const generateSeed = () => randomBytes(4).readInt32BE();
 export interface PlantRow extends QueryResultRow {
   id: string;
@@ -39,6 +40,11 @@ export interface PlantRow extends QueryResultRow {
   created_at: Date;
   cursor_time?: string;
   sort_name?: string;
+  game_eligible: boolean;
+  first_discovery: boolean;
+  is_favorite: boolean;
+  is_protected: boolean;
+  sold_at: Date | null;
   creation_source: PlantDto["creationSource"];
   rarity_policy_version: 1;
   rarity_score: number;
@@ -81,6 +87,14 @@ function plantDto(row: PlantRow): PlantDto {
         : [],
     createdAt: row.created_at.toISOString(),
     creationSource: row.creation_source,
+    gameEligible: row.game_eligible ?? false,
+    firstDiscovery: row.first_discovery ?? false,
+    saleCoins: row.game_eligible
+      ? saleValue(row.rarity_tier, row.rarity_score)
+      : null,
+    isFavorite: row.is_favorite ?? false,
+    isProtected: row.is_protected ?? false,
+    soldAt: row.sold_at?.toISOString() ?? null,
     rarity: {
       score: row.rarity_score,
       tier: row.rarity_tier,
@@ -255,10 +269,13 @@ export class PlantRepository {
       total,
     };
   }
-  async cross(input: BreedingRequest): Promise<BreedingResponse> {
-    const client = await this.pool.connect();
+  async cross(
+    input: BreedingRequest,
+    transaction?: PoolClient,
+  ): Promise<BreedingResponse> {
+    const client = transaction ?? (await this.pool.connect());
     try {
-      await client.query("BEGIN");
+      if (!transaction) await client.query("BEGIN");
       await client.query(
         "SELECT pg_advisory_xact_lock(hashtextextended($1,0))",
         [this.ownerId + ":" + input.idempotencyKey],
@@ -280,7 +297,7 @@ export class PlantRepository {
             "This request key already belongs to another parent pair.",
           );
         const plant = await this.getPlant(existing.child_id, client);
-        await client.query("COMMIT");
+        if (!transaction) await client.query("COMMIT");
         return { plant, event: eventDto(existing) };
       }
       if (input.parentAId === input.parentBId)
@@ -292,7 +309,7 @@ export class PlantRepository {
       // Read owned rows before interpreting their versioned genomes.
       const rows = (
         await client.query<PlantRow>(
-          "SELECT * FROM plants WHERE owner_id=$1 AND id=ANY($2::uuid[]) FOR SHARE",
+          "SELECT * FROM plants WHERE owner_id=$1 AND sold_at IS NULL AND id=ANY($2::uuid[]) FOR SHARE",
           [this.ownerId, [input.parentAId, input.parentBId]],
         )
       ).rows;
@@ -302,7 +319,7 @@ export class PlantRepository {
         throw new ApiError(
           404,
           "PLANT_NOT_FOUND",
-          "One or both parents are not in this sandbox.",
+          "One or both parents are unavailable in your collection.",
         );
       try {
         if (!canBreed(a.species_id, b.species_id).compatible)
@@ -362,13 +379,13 @@ export class PlantRepository {
           ],
         )
       ).rows[0];
-      await client.query("COMMIT");
+      if (!transaction) await client.query("COMMIT");
       return { plant, event: eventDto(event) };
     } catch (error) {
-      await client.query("ROLLBACK");
+      if (!transaction) await client.query("ROLLBACK");
       throw error;
     } finally {
-      client.release();
+      if (!transaction) client.release();
     }
   }
 }

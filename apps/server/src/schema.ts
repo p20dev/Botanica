@@ -2,6 +2,7 @@ import {
   pgTable,
   text,
   integer,
+  boolean,
   uuid,
   jsonb,
   timestamp,
@@ -19,6 +20,11 @@ export const species = pgTable("species", {
 export const players = pgTable("players", {
   id: uuid().primaryKey(),
   displayName: text("display_name").notNull(),
+  normalizedUsername: text("normalized_username").unique(),
+  passwordHash: text("password_hash"),
+  coinBalance: integer("coin_balance").notNull().default(0),
+  xp: integer("xp").notNull().default(0),
+  gameStats: jsonb("game_stats").notNull().default({}),
   createdAt: timestamp("created_at", { withTimezone: true })
     .defaultNow()
     .notNull(),
@@ -30,6 +36,11 @@ export const plants = pgTable(
     name: text().notNull().default("Velvetleaf"),
     creationSource: text("creation_source").notNull().default("designed"),
     rarityReasons: jsonb("rarity_reasons").notNull().default([]),
+    gameEligible: boolean("game_eligible").notNull().default(false),
+    isFavorite: boolean("is_favorite").notNull().default(false),
+    isProtected: boolean("is_protected").notNull().default(false),
+    firstDiscovery: boolean("first_discovery").notNull().default(false),
+    soldAt: timestamp("sold_at", { withTimezone: true }),
     ownerId: uuid("owner_id")
       .notNull()
       .references(() => players.id),
@@ -82,7 +93,7 @@ export const breedingEvents = pgTable(
   },
   (t) => [
     unique().on(t.childId),
-    unique().on(t.idempotencyKey),
+    unique("breeding_owner_request").on(t.ownerId, t.idempotencyKey),
     index("breeding_owner_created").on(t.ownerId, t.createdAt.desc()),
   ],
 );

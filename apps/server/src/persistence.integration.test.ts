@@ -11,7 +11,16 @@ describe.skipIf(!databaseUrl)(
   "PostgreSQL persistence and transaction acceptance",
   () => {
     const pool = new pg.Pool({ connectionString: databaseUrl });
-    const app = createApp(() => pool.query("SELECT 1"), false, pool);
+    const app = createApp(
+      () => pool.query("SELECT 1"),
+      false,
+      pool,
+      async () => ({
+        id: DEMO_PLAYER_ID,
+        username: "test-sandbox",
+        csrfToken: "test-only",
+      }),
+    );
     let childId = "";
     beforeAll(async () => {
       await migrate(pool);
@@ -29,7 +38,7 @@ describe.skipIf(!databaseUrl)(
           (await pool.query("SELECT count(*) FROM schema_migrations")).rows[0]
             .count,
         ),
-      ).toBe(2);
+      ).toBe(3);
       expect(
         Number(
           (await pool.query("SELECT count(*) FROM players")).rows[0].count,

@@ -44,7 +44,7 @@ export async function listCollection(
     trait("pigment") +
     " AS resolved_pigment, " +
     trait("leafPattern") +
-    " AS resolved_pattern FROM plants p WHERE owner_id=$1) ";
+    " AS resolved_pattern FROM plants p WHERE owner_id=$1 AND sold_at IS NULL) ";
   const conditions: string[] = [];
   for (const [column, value] of [
     ["species_id", query.species],
@@ -159,7 +159,7 @@ export async function collectionStats(
       rarity_tier: NonNullable<keyof CollectionStats["byRarity"]>;
       count: string;
     }>(
-      "SELECT rarity_tier,count(*) FROM plants WHERE owner_id=$1 GROUP BY rarity_tier",
+      "SELECT rarity_tier,count(*) FROM plants WHERE owner_id=$1 AND sold_at IS NULL GROUP BY rarity_tier",
       [ownerId],
     )
   ).rows;

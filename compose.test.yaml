@@ -25,6 +25,7 @@ services:
         "vitest",
         "run",
         "apps/server/src/persistence.integration.test.ts",
+        "apps/server/src/game.integration.test.ts",
       ]
     depends_on:
       db:
