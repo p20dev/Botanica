@@ -55,3 +55,5 @@ Indices: plants(owner_id,created_at DESC), plants(species_id,rarity_tier), breed
 ## M1 implemented examples
 
 `GET /api/v1/catalog/species` returns `{catalogVersion:1,species:[...]}` with dominance, phenotype names, compatibility and mutation/rarity policy data. `POST /api/v1/phenotype/resolve` accepts `{speciesId:"velvetleaf",genome:<the six diploid locus pairs>,mutations:[],catalogVersion:1}` and returns `{phenotype,rarity}`. Unknown client fields (including rarity claims) and invalid alleles return a uniform 400 error. Shared request schemas/DTOs are in `packages/shared`; no breeding endpoint exists before M3.
+
+`POST /api/v1/preview` accepts the resolve fields plus signed-int32 `visualSeed`, `growthStage` (`seedling`, `juvenile`, `mature`, `flowering`), `rendererVersion:1` and `background` (`transparent`, `warm`). It validates genomes server-side and returns `{rendererVersion:1,svg:"<svg ...>...</svg>"}` using the same pure renderer as the browser. It does not persist a plant or accept arbitrary SVG/scene/palette input.

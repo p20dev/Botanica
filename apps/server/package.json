@@ -16,7 +16,8 @@
     "drizzle-orm": "^0.45.4",
     "pg": "^8.16.3",
     "@botanica/genetics": "0.0.0",
-    "@botanica/shared": "0.0.0"
+    "@botanica/shared": "0.0.0",
+    "@botanica/renderer": "0.0.0"
   },
   "devDependencies": {
     "@types/pg": "^8.15.5",

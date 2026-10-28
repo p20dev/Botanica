@@ -17,7 +17,10 @@
     "clsx": "^2.1.1",
     "tailwind-merge": "^3.0.0",
     "class-variance-authority": "^0.7.1",
-    "lucide-react": "^0.577.0"
+    "lucide-react": "^0.577.0",
+    "@botanica/genetics": "0.0.0",
+    "@botanica/renderer": "0.0.0",
+    "@botanica/shared": "0.0.0"
   },
   "devDependencies": {
     "vite": "^8.3.5",

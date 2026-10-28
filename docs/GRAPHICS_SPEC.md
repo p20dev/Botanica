@@ -47,3 +47,13 @@ Each path has canonical coordinates and must be paintable using declared palette
 - 100 small previews render without unacceptable jank on a normal desktop browser.
 - Exported SVG opens in a standard SVG viewer without external assets; PNG export has correct alpha/background as selected.
 - All graphics are original vector assets stored in the repository; document creator and licensing in `assets/README.md`.
+
+## Renderer v1 implemented grammar
+
+`layoutPlant` returns a validated scene of known primitive IDs, numeric transforms, palette slots and ordered layers. Mulberry32 starts afresh from the signed cosmetic seed. It jitters leaf anchor position by at most four canonical pixels, angle by 4.5 degrees and scale by five percent. Species/habit anchors and silhouettes remain fixed. Seed parity selects one of two pot materials. Stage scales are 0.42 / 0.69 / 1 / 1, with 2 / 4 / 6 / 6 leaves. Only flowering produces blooms; low/medium/high density yields 2/4/6 flowers. Genotype, resolved phenotype and rarity are unchanged by growth stage or cosmetic seed.
+
+Render SVG strings use the fixed `0 0 512 512` viewBox, finite validated transforms, strict hex palettes, known asset IDs and validated per-instance namespaces. `PlantPreview` supplies a React instance namespace to prevent clipping/gradient ID collisions; changing namespaces does not alter geometry. It memoizes render inputs, so workbench changes do not redraw unrelated gallery plants. Raw SVG injection is confined to this adapter and receives only the serializer's validated output.
+
+The `/gallery` M2 proof atlas contains exactly 12 systematic shape/pigment/pattern studies and an explicit 100-seed smoke view. These are deterministic visual studies, not database records or breeding outcomes. `/lab` provides curated studies, growth stages, visual seed, clearly labeled manual golden-vein preview, 64px and 128px comparison views, and matching SVG/PNG exports. The full diploid editor remains M3.
+
+The export background selector controls the preview and both exports together. SVG downloads are self-contained; PNG rasterizes that identical SVG at 512×512 via a temporary Blob URL. Object URLs are revoked, failures are reported, and transparent export retains alpha. Primitive source provenance and synchronization are documented in `assets/README.md`.

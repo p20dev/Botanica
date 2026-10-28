@@ -1,0 +1,283 @@
+[
+  {
+    "assetId": "velvetleaf/leaf_oval_v1",
+    "category": "leaf",
+    "anchor": [
+      0.5,
+      0.9142857142857143
+    ],
+    "bounds": [
+      0,
+      0,
+      100,
+      140
+    ],
+    "paletteSlots": [
+      "leafBase",
+      "leafShade",
+      "vein",
+      "variegation"
+    ],
+    "rendererVersion": 1
+  },
+  {
+    "assetId": "velvetleaf/leaf_lobed_v1",
+    "category": "leaf",
+    "anchor": [
+      0.5,
+      0.9142857142857143
+    ],
+    "bounds": [
+      0,
+      0,
+      100,
+      140
+    ],
+    "paletteSlots": [
+      "leafBase",
+      "leafShade",
+      "vein",
+      "variegation"
+    ],
+    "rendererVersion": 1
+  },
+  {
+    "assetId": "velvetleaf/leaf_pointed_v1",
+    "category": "leaf",
+    "anchor": [
+      0.5,
+      0.9142857142857143
+    ],
+    "bounds": [
+      0,
+      0,
+      100,
+      140
+    ],
+    "paletteSlots": [
+      "leafBase",
+      "leafShade",
+      "vein",
+      "variegation"
+    ],
+    "rendererVersion": 1
+  },
+  {
+    "assetId": "velvetleaf/branch_compact_v1",
+    "category": "branch",
+    "anchor": [
+      0,
+      0
+    ],
+    "bounds": [
+      0,
+      0,
+      512,
+      512
+    ],
+    "paletteSlots": [
+      "leafShade",
+      "vein"
+    ],
+    "rendererVersion": 1
+  },
+  {
+    "assetId": "velvetleaf/branch_bushy_v1",
+    "category": "branch",
+    "anchor": [
+      0,
+      0
+    ],
+    "bounds": [
+      0,
+      0,
+      512,
+      512
+    ],
+    "paletteSlots": [
+      "leafShade",
+      "vein"
+    ],
+    "rendererVersion": 1
+  },
+  {
+    "assetId": "velvetleaf/branch_trailing_v1",
+    "category": "branch",
+    "anchor": [
+      0,
+      0
+    ],
+    "bounds": [
+      0,
+      0,
+      512,
+      512
+    ],
+    "paletteSlots": [
+      "leafShade",
+      "vein"
+    ],
+    "rendererVersion": 1
+  },
+  {
+    "assetId": "velvetleaf/stem_v1",
+    "category": "stem",
+    "anchor": [
+      0,
+      0
+    ],
+    "bounds": [
+      0,
+      0,
+      512,
+      512
+    ],
+    "paletteSlots": [
+      "leafShade",
+      "vein"
+    ],
+    "rendererVersion": 1
+  },
+  {
+    "assetId": "velvetleaf/flower_stalk_v1",
+    "category": "stem",
+    "anchor": [
+      0.5,
+      1
+    ],
+    "bounds": [
+      -10,
+      -100,
+      20,
+      100
+    ],
+    "paletteSlots": [
+      "leafShade"
+    ],
+    "rendererVersion": 1
+  },
+  {
+    "assetId": "velvetleaf/bloom_round_v1",
+    "category": "bloom",
+    "anchor": [
+      0.5,
+      0.5
+    ],
+    "bounds": [
+      0,
+      0,
+      50,
+      50
+    ],
+    "paletteSlots": [
+      "flower",
+      "variegation"
+    ],
+    "rendererVersion": 1
+  },
+  {
+    "assetId": "velvetleaf/bloom_star_v1",
+    "category": "bloom",
+    "anchor": [
+      0.5,
+      0.5
+    ],
+    "bounds": [
+      0,
+      0,
+      50,
+      50
+    ],
+    "paletteSlots": [
+      "flower",
+      "variegation"
+    ],
+    "rendererVersion": 1
+  },
+  {
+    "assetId": "velvetleaf/bloom_cup_v1",
+    "category": "bloom",
+    "anchor": [
+      0.5,
+      0.5
+    ],
+    "bounds": [
+      0,
+      0,
+      50,
+      50
+    ],
+    "paletteSlots": [
+      "flower",
+      "variegation"
+    ],
+    "rendererVersion": 1
+  },
+  {
+    "assetId": "velvetleaf/bloom_double_v1",
+    "category": "bloom",
+    "anchor": [
+      0.5,
+      0.5
+    ],
+    "bounds": [
+      0,
+      0,
+      50,
+      50
+    ],
+    "paletteSlots": [
+      "flower",
+      "variegation"
+    ],
+    "rendererVersion": 1
+  },
+  {
+    "assetId": "velvetleaf/pot_terracotta_v1",
+    "category": "pot",
+    "anchor": [
+      0,
+      0
+    ],
+    "bounds": [
+      0,
+      0,
+      512,
+      512
+    ],
+    "paletteSlots": [],
+    "rendererVersion": 1
+  },
+  {
+    "assetId": "velvetleaf/pot_ceramic_v1",
+    "category": "pot",
+    "anchor": [
+      0,
+      0
+    ],
+    "bounds": [
+      0,
+      0,
+      512,
+      512
+    ],
+    "paletteSlots": [],
+    "rendererVersion": 1
+  },
+  {
+    "assetId": "velvetleaf/shadow_v1",
+    "category": "shadow",
+    "anchor": [
+      0,
+      0
+    ],
+    "bounds": [
+      0,
+      0,
+      512,
+      512
+    ],
+    "paletteSlots": [],
+    "rendererVersion": 1
+  }
+]

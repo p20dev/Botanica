@@ -2,7 +2,7 @@
 
 - [x] M0 — workspaces, Compose, healthcheck, migrations, responsive shell.
 - [x] M1 — genetics contracts, deterministic PRNG, pure engine + tests.
-- [ ] M2 — procedural illustrated SVG renderer, exports, visual QA.
+- [x] M2 — procedural illustrated SVG renderer, exports, visual QA.
 - [ ] M3 — lab editor, server persistence, breeding flow.
 - [ ] M4 — gallery, provenance, UX polish, full acceptance.
 
@@ -47,3 +47,26 @@ Gate complete before starting M2. Implemented versioned catalog/Zod schemas, pur
 Verified `npm run test` (10 passed), `npm run typecheck`, `npm run build`, `docker compose config --quiet`, `docker compose up --build -d`, `docker compose ps`, and proxied HTTP health/catalog/resolve requests. 10,000 mutation-free PG crosses: PP=2499 (24.99%), PG=5041 (50.41%), GG=2460 (24.60%), all within ±2 percentage points. Exact replay tested in a separate Node process. Tests cover all dominance pairs, invalid/missing/extra alleles, unknown versions/species, compatibility/hybrid requirements, mutation probabilities 0/1, valid replacements and rarity reasons. Live invalid-allele POST returned 400; valid POST returned resolved phenotype and rarity.
 
 A mutation-boundary test exposed coupling between mutation draw consumption and cosmetic seed generation; cosmetic child seeds now use a separately salted stream, documented in GENETICS_SPEC. No UI changes at M1: existing shell remains available at http://localhost:8155. Persistent breeding remains M3. Continuing to M2 under the user's instruction.
+
+
+## M2 — 2026-10-28
+
+Gate complete. Added 15 original CC0 botanical SVG primitives (three silhouettes, three branch grammars, soil stem and flower stalk, four blooms, two pots, shadow) with asset manifest and synchronized standalone sources. Added six curated palettes, deterministic species-specific layout, four stages, clipped variegation/marbling, restrained golden veins, stable per-instance SVG namespaces and strict scene/serializer validation. Geometry and domain packages remain independent of React, DOM and persistence.
+
+Added memoized PlantPreview adapter, a usable `/lab` visual-study workbench (curated presets, seed, stage, clearly labeled manual mutation, derived phenotype/rarity, 64px icon, four 128px stage views), SVG/PNG exports, `/gallery` 12-variation atlas and 100-seed smoke study. These are explicit non-persistent render proofs; the full diploid editor and saved breeding remain M3. Added validated `/api/v1/preview`, using the same pure renderer as the client. Updated asset provenance, genetics/graphics/API documentation and README.
+
+### Checks actually run
+
+- `npm run test`: 16 tests passed across five suites; 16 asset files (15 SVG sources + manifest) verified in sync. Includes M1 regressions, exact render replay, cosmetic seed invariance, 3,600 shape/habit/stage/seed layout bounds, stage/density behavior, distinct 12-way output, clipped patterns, golden-vein geometry invariance, malicious namespace/asset/palette/NaN rejection and API/client SVG equivalence.
+- `npm run typecheck`: passed all workspaces.
+- `npm run build`: passed packages, API and Vite production bundle (about 129 kB gzip JS).
+- `docker compose config --quiet`, `docker compose up --build -d`, `docker compose ps`: passed; API/DB healthy, web available at http://localhost:8155, only loopback web port published.
+- `curl.exe -fsS http://localhost:8155/health`: 200 JSON with connected database. Live proxied preview POST returned 200 and a self-contained renderer-v1 SVG. Sandbox database remains one player and one species.
+- `node scripts/verify-m2.cjs` with bundled Playwright and Chrome: passed desktop 1440px and mobile 360px checks, no horizontal overflow or JavaScript page errors. Verified seed edits leave the phenotype/rarity summary unchanged, exact 12/100 card counts and unique SVG IDs (1302/1302 in the smoke view).
+- Actual UI downloads for warm/transparent SVG and PNG decode successfully. PNG dimensions are 512×512. All four downloads rasterize identically to the live SVG preview: mean pixel difference 0. Warm corner RGBA=246,243,232,255; transparent corner=0,0,0,0.
+- 100-plant transition measured about 250 ms including browser interaction and two frames; largest observed frame gap about 67 ms, one 108 ms long task. This is a local headless desktop measurement, not a cross-device performance guarantee. The UI remained usable and toggled back successfully.
+- Visually inspected desktop workbench, complete systematic atlas, mobile workbench, 512px hero, 64px icon and 100-seed overview. Original bloom stems looked detached during initial QA; added explicit connecting stalk geometry and repeated tests/build/browser/export checks after fixing it. No obvious leaf/pot clipping.
+
+Screenshots, real exported SVG/PNG files and structured measurements are in `artifacts/m2/`. The optional browser script is checked in and documents its external Playwright/browser requirements in README.
+
+No known M2 blockers. Local sandbox only; persistent plant creation, full genome editor, saved breeding and lineage navigation are intentionally not implemented before M3. `.env` values remain unchanged and excluded from Git. Stop at M2 as requested; next milestone is M3.

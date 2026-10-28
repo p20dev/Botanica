@@ -1,0 +1,73 @@
+{
+  "routes": [
+    {
+      "route": "/lab",
+      "width": 1440,
+      "scrollWidth": 1440
+    },
+    {
+      "route": "/gallery",
+      "width": 1440,
+      "scrollWidth": 1440
+    },
+    {
+      "route": "/lab",
+      "width": 360,
+      "scrollWidth": 360
+    },
+    {
+      "route": "/gallery",
+      "width": 360,
+      "scrollWidth": 360
+    },
+    {
+      "route": "/breed",
+      "width": 360,
+      "scrollWidth": 360
+    },
+    {
+      "route": "/about",
+      "width": 360,
+      "scrollWidth": 360
+    }
+  ],
+  "exports": [
+    {
+      "background": "warm",
+      "width": 512,
+      "height": 512,
+      "corner": [
+        246,
+        243,
+        232,
+        255
+      ],
+      "pngToSvgMeanDifference": 0,
+      "pngToPreviewMeanDifference": 0
+    },
+    {
+      "background": "transparent",
+      "width": 512,
+      "height": 512,
+      "corner": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "pngToSvgMeanDifference": 0,
+      "pngToPreviewMeanDifference": 0
+    }
+  ],
+  "errors": [],
+  "performance": {
+    "cards": 100,
+    "elapsedMs": 250.20000004768372,
+    "maxFrameGapMs": 66.80000000000001,
+    "longTasksMs": [
+      108
+    ],
+    "uniqueIds": 1302,
+    "ids": 1302
+  }
+}

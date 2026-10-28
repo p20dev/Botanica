@@ -1,3 +1,5 @@
+import { RenderLab } from "./pages/RenderLab";
+import { RenderGallery } from "./pages/RenderGallery";
 import React from "react";
 import { createRoot } from "react-dom/client";
 import { BrowserRouter, NavLink, Navigate, Route, Routes } from "react-router";
@@ -185,7 +187,7 @@ function Page({ page }: { page: keyof typeof pages }) {
               {page === "lab" ? "The workbench" : p.label}
             </h2>
           </div>
-          <span className="badge">M0 · Foundations</span>
+          <span className="badge">M2 · Foundations</span>
         </div>
         <div className="empty">
           <span className="icon">
@@ -233,7 +235,15 @@ function App() {
             <Route
               key={key}
               path={`/${key}`}
-              element={<Page page={key as keyof typeof pages} />}
+              element={
+                key === "lab" ? (
+                  <RenderLab />
+                ) : key === "gallery" ? (
+                  <RenderGallery />
+                ) : (
+                  <Page page={key as keyof typeof pages} />
+                )
+              }
             />
           ))}
           <Route

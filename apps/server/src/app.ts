@@ -1,3 +1,4 @@
+import { registerPreviewRoute } from "./preview-route.js";
 import { ZodError } from "zod";
 import { GeneticsError } from "@botanica/genetics";
 import { registerGeneticsRoutes } from "./genetics-routes.js";
@@ -21,6 +22,7 @@ export function createApp(
     }
   });
   registerGeneticsRoutes(app);
+  registerPreviewRoute(app);
   app.setNotFoundHandler((_request, reply) =>
     reply
       .code(404)
@@ -28,18 +30,16 @@ export function createApp(
   );
   app.setErrorHandler((error, request, reply) => {
     if (error instanceof ZodError)
-      return reply
-        .code(400)
-        .send({
-          error: {
-            code: "INVALID_REQUEST",
-            message: "Request validation failed.",
-            details: error.issues.map((i) => ({
-              path: i.path,
-              message: i.message,
-            })),
-          },
-        });
+      return reply.code(400).send({
+        error: {
+          code: "INVALID_REQUEST",
+          message: "Request validation failed.",
+          details: error.issues.map((i) => ({
+            path: i.path,
+            message: i.message,
+          })),
+        },
+      });
     if (error instanceof GeneticsError)
       return reply
         .code(error.code === "INCOMPATIBLE_SPECIES" ? 409 : 400)

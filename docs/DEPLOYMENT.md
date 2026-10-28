@@ -39,6 +39,7 @@ Later replace `PUBLIC_DOMAIN` with a true HTTPS origin and configure TLS at the 
 
 ## Implemented M0 bootstrap
 
-Compose publishes web on loopback (`127.0.0.1:${HOST_PORT}:8080`), with nginx running as an unprivileged user. API and DB have no published ports. The `bootstrap` one-shot service uses the API image to run `node dist/migrate.js` then `node dist/seed.js`; API waits for successful completion. A PostgreSQL transaction advisory lock serializes migration execution. A migration tracking table prevents repeat schema application. Seeds use conflict-safe inserts and preserve existing records.
+Compose publishes web on loopback (`127.0.0.1:${HOST_PORT}:8080`), with nginx running as an unprivileged user. API and DB have no published ports. The `bootstrap` one-shot service uses the API image to run `node dist/migrate.js` then `node dist/seed.js`; API waits for successful completion. A PostgreSQL transaction advisory lock serializes migration execution. A migration tracking table prevents repeat schema application. Player seeds use conflict-safe inserts and preserve existing records. The M1 catalog seed synchronizes the current versioned definition; it does not rewrite plant genomes or ancestry.
 
 For explicit reruns use `docker compose run --rm bootstrap node dist/migrate.js` or `docker compose run --rm bootstrap node dist/seed.js`. Runtime images contain compiled JavaScript; root npm migration/seed scripts use TypeScript tooling for host development with an explicit `DATABASE_URL`. Compose production mode overrides the starter development value without modifying `.env`.
+
