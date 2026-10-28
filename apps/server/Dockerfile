@@ -7,11 +7,12 @@ COPY packages/ packages/
 RUN npm ci
 COPY tsconfig.base.json ./
 COPY apps/server/ apps/server/
-RUN npm run build -w @botanica/server && npm prune --omit=dev
+RUN npm run build:packages && npm run build -w @botanica/server && npm prune --omit=dev
 FROM node:24-alpine
 ENV NODE_ENV=production
 WORKDIR /app
 COPY --from=build --chown=node:node /app/node_modules ./node_modules
+COPY --from=build --chown=node:node /app/packages ./packages
 COPY --from=build --chown=node:node /app/apps/server/package.json ./package.json
 COPY --from=build --chown=node:node /app/apps/server/dist ./dist
 COPY --from=build --chown=node:node /app/apps/server/migrations ./migrations

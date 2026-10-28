@@ -8,11 +8,14 @@
   ],
   "scripts": {
     "dev": "concurrently \"npm run dev -w @botanica/server\" \"npm run dev -w @botanica/web\"",
-    "build": "npm run build --workspaces --if-present",
-    "typecheck": "npm run typecheck --workspaces --if-present",
+    "build": "npm run build:packages && npm run build -w @botanica/server && npm run build -w @botanica/web",
+    "typecheck": "npm run build:packages && npm run typecheck --workspaces --if-present",
     "test": "vitest run",
     "db:migrate": "npm run db:migrate -w @botanica/server",
-    "db:seed": "npm run db:seed -w @botanica/server"
+    "db:seed": "npm run db:seed -w @botanica/server",
+    "build:packages": "npm run build -w @botanica/rules && npm run build -w @botanica/genetics && npm run build -w @botanica/shared && npm run build -w @botanica/renderer",
+    "pretest": "npm run build:packages",
+    "predev": "npm run build:packages"
   },
   "devDependencies": {
     "typescript": "~5.9.3",

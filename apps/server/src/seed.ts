@@ -1,3 +1,4 @@
+import { velvetleaf } from "@botanica/genetics";
 import { connectDatabase } from "./db.js";
 import { players, species } from "./schema.js";
 const { pool, db } = connectDatabase(process.env.DATABASE_URL ?? "");
@@ -17,19 +18,12 @@ try {
         name: "Velvetleaf",
         compatibilityGroup: "velvetleaf",
         catalogVersion: 1,
-        config: {
-          interspeciesBreeding: false,
-          loci: {
-            pigment: ["G", "P", "R", "Y"],
-            leafShape: ["O", "L", "S"],
-            leafPattern: ["S", "V", "M"],
-            growthHabit: ["C", "B", "T"],
-            flowerColor: ["W", "P", "B", "R"],
-            flowerDensity: ["L", "M", "H"],
-          },
-        },
+        config: velvetleaf,
       })
-      .onConflictDoNothing();
+      .onConflictDoUpdate({
+        target: species.id,
+        set: { config: velvetleaf, catalogVersion: 1 },
+      });
   });
   console.log("Sandbox player and velvetleaf catalog ready");
 } finally {

@@ -51,3 +51,7 @@ Indices: plants(owner_id,created_at DESC), plants(species_id,rarity_tier), breed
 - No raw SQL concatenation; no secrets in frontend build; limit payload size.
 - Idempotent breeding ensures retries cannot create duplicated child plants.
 - API response and schema types must be shared where sensible; avoid circular import chains.
+
+## M1 implemented examples
+
+`GET /api/v1/catalog/species` returns `{catalogVersion:1,species:[...]}` with dominance, phenotype names, compatibility and mutation/rarity policy data. `POST /api/v1/phenotype/resolve` accepts `{speciesId:"velvetleaf",genome:<the six diploid locus pairs>,mutations:[],catalogVersion:1}` and returns `{phenotype,rarity}`. Unknown client fields (including rarity claims) and invalid alleles return a uniform 400 error. Shared request schemas/DTOs are in `packages/shared`; no breeding endpoint exists before M3.

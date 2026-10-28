@@ -57,3 +57,13 @@ Dominance order is a gameplay simplification and is **not** an assertion about r
 - Invalid alleles, missing loci and incompatible species fail.
 - Mutations never create an unknown allele and are logged.
 - No simultaneous duplicate breeding can spend resources twice (when economy implemented); meanwhile transaction persists exactly one child per idempotency key.
+
+## Engine v1 execution details (M1)
+
+The complete v1 catalog lives in `packages/genetics/src/catalog.ts`. Unknown versions, species, allele values, missing loci and extra genome keys are rejected. Compatibility requires a shared group plus mutual partner approval and an explicit offspring rule for different species. v1 contains only velvetleaf, so no interspecies cross is available.
+
+Mulberry32 v1 accepts signed 32-bit integer seeds (matching PostgreSQL integer storage). Convert to unsigned bits with `>>> 0`; each draw adds `0x6D2B79F5` modulo 2^32, uses JavaScript `Math.imul`/bitwise xor and shifts, and divides its unsigned result by 2^32. No runtime-dependent floating seed hashing is used. Reference seed 1 begins `0.6270739405881613, 0.002735721180215478`.
+
+Breeding visits loci in this fixed alphabetical order: flowerColor, flowerDensity, growthHabit, leafPattern, leafShape, pigment. At each locus draw parent A's allele, then B's allele, then each mutation check in A/B order; triggered mutations consume one additional draw selecting uniformly among the other valid alleles in catalog dominance order. Named mutations follow in alphabetical ID order (currently golden_veins only). Mutation checks consume a draw even at probability zero. The cosmetic child seed comes from a fresh Mulberry32 stream seeded with `eventSeed XOR 0x56495331`, scaled to 32 bits and interpreted as signed. Cosmetic layout uses its own fresh stream and never changes inheritance or rarity.
+
+Rare recessive phenotypes are catalog-defined: green pigment, oval leaves, compact habit, white flowers and low flower density. Only the first two matching unusual traits contribute (+40 maximum). Patterned leaves add 20; golden veins add 25; yellow leaves combined with blue flowers add 15. Scores and explanations are derived without RNG. This is a fictional balance policy, not a claim about real trait frequency. Pure APIs return versions; persistence and any explicit stored-rarity migration belong to M3 and future policy upgrades.

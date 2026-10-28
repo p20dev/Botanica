@@ -1,7 +1,7 @@
 # Implementation progress
 
 - [x] M0 — workspaces, Compose, healthcheck, migrations, responsive shell.
-- [ ] M1 — genetics contracts, deterministic PRNG, pure engine + tests.
+- [x] M1 — genetics contracts, deterministic PRNG, pure engine + tests.
 - [ ] M2 — procedural illustrated SVG renderer, exports, visual QA.
 - [ ] M3 — lab editor, server persistence, breeding flow.
 - [ ] M4 — gallery, provenance, UX polish, full acceptance.
@@ -38,3 +38,12 @@ Initial Docker build started before npm finished writing the lockfile and failed
 No M1–M4 behavior is implemented. Domain packages intentionally establish empty module boundaries until their milestone. No ESLint was added; strict TypeScript and focused tests provide the M0 checks. This remains a local demo without authentication.
 
 M0 gate complete. Stop here. Next: M1 genetics contracts, deterministic PRNG, inheritance engine and tests, after user instruction to proceed.
+
+
+## M1 — 2026-10-28
+
+Gate complete before starting M2. Implemented versioned catalog/Zod schemas, pure phenotype resolution, approved-pair compatibility, Mulberry32 v1 inheritance, allele/named mutation logs, provenance and derived rarity policy. Added shared DTOs and catalog/resolve API routes with safe validation errors. Workspace exports now use built JS/declarations in explicit dependency order, including production Docker runtime package links. Catalog seed enriches the existing v1 row; no plant data or ancestry is modified.
+
+Verified `npm run test` (10 passed), `npm run typecheck`, `npm run build`, `docker compose config --quiet`, `docker compose up --build -d`, `docker compose ps`, and proxied HTTP health/catalog/resolve requests. 10,000 mutation-free PG crosses: PP=2499 (24.99%), PG=5041 (50.41%), GG=2460 (24.60%), all within ±2 percentage points. Exact replay tested in a separate Node process. Tests cover all dominance pairs, invalid/missing/extra alleles, unknown versions/species, compatibility/hybrid requirements, mutation probabilities 0/1, valid replacements and rarity reasons. Live invalid-allele POST returned 400; valid POST returned resolved phenotype and rarity.
+
+A mutation-boundary test exposed coupling between mutation draw consumption and cosmetic seed generation; cosmetic child seeds now use a separately salted stream, documented in GENETICS_SPEC. No UI changes at M1: existing shell remains available at http://localhost:8155. Persistent breeding remains M3. Continuing to M2 under the user's instruction.
