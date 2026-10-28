@@ -1,0 +1,11 @@
+node_modules/
+dist/
+coverage/
+.vite/
+*.log
+.env.local
+.env.production
+.env.*.local
+!.env.example
+# Local .env supplied in handoff but should not be committed to public VCS
+.env
