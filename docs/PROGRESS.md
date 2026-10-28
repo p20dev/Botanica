@@ -4,7 +4,7 @@
 - [x] M1 — genetics contracts, deterministic PRNG, pure engine + tests.
 - [x] M2 — procedural illustrated SVG renderer, exports, visual QA.
 - [x] M3 — lab editor, server persistence, breeding flow.
-- [ ] M4 — gallery, provenance, UX polish, full acceptance.
+- [x] M4 — gallery, provenance, UX polish, full acceptance.
 
 ## M0 — 2026-10-28
 
@@ -82,3 +82,24 @@ Checks run: `npm run typecheck`, `npm run test` (16 unit/domain/API tests passed
 `node scripts/verify-m3.cjs` passed live browser acceptance: editing a pigment allele changes visible phenotype/SVG; save excludes the manual mutation; founder and child survive reload; offspring has two persisted parents and generation 1; lineage navigates to the saved founder; laboratory, breeding and detail pages fit 360px. Desktop/mobile screenshots and result IDs are in artifacts/m3. The first browser attempt used a label-text locator that included select-option text; the actual accessible combobox names were verified and the test corrected. No app defect was suppressed. Visually reviewed laboratory and breeding screens.
 
 URL: http://localhost:8155. Known limit: collection filtering/demo population belongs to M4; no auth or public release. The UI acceptance founder and its offspring are retained as evidence of persistence. Continuing to M4 under user authorization.
+
+## M4 — 2026-10-28
+
+Gate complete. Implemented the persisted collection cabinet with server-side species/pigment/pattern/rarity filters, literal search, four stable sort modes and bounded cursor pagination. SQL trait expressions derive their dominance order from the versioned catalog; no client input becomes raw SQL. Added actual collection statistics separately from rarity scoring, saved-plant birth-event inspection, a native modal inspector with explicit Tab wrapping, Escape/close and focus restoration, deep links, parent navigation, full provenance and JSON/SVG/PNG exports. Added shared inspector preferences, loading/empty/error/retry states, save/cross confirmations, route focus handling, reduced-motion support and a render-error fallback. Removed superseded M2 lab/store code; kept the render atlas at /studies.
+
+The idempotent seed now contains exactly 100 fixed-ID deterministic demonstration plants, including the two M3 parents. Existing plants are not overwritten. The live collection has 102 records: 100 demonstrations plus the M3 UI acceptance founder and its child. Demo traits/modifiers are explicitly described as curated examples, not observed breeding frequencies. Added API_EXAMPLES.md, ROADMAP.md, deployment notes and final README.
+
+### Final acceptance results
+
+- `npm run typecheck`: passed all workspaces on final application source.
+- `npm run test`: 16 unit/domain/API tests passed; eight PostgreSQL cases are skipped in this command without TEST_DATABASE_URL and are executed separately below. All 16 primitive source/manifest files remain synchronized.
+- `npm run build`: passed pure packages, server and production web assets.
+- `docker compose -f compose.test.yaml up --build --abort-on-container-exit --exit-code-from test`: all eight real-PostgreSQL integration cases passed on a fresh isolated tmpfs database. Repeated seed produced exactly 100 demo plants. M3 concurrency/rollback/replay/ownership checks still pass; M4 traverses the entire collection under newest/oldest/name/rarity sorts without gaps or duplicates, verifies filters, literal wildcard search, empty search, invalid sort/cursor rejection and real tier counts. Temporary test containers/network were removed afterward, leaving the application data untouched.
+- `docker compose config --quiet`, `docker compose up --build -d`, `docker compose ps` and `curl.exe -fsS http://localhost:8155/health`: passed. API and DB are healthy; only web publishes `127.0.0.1:8155`. Proxied health returns 200 connected JSON.
+- Repeated live `docker compose run --rm bootstrap node dist/seed.js`: still exactly 100 demo records, one designed acceptance founder and one bred child. Both schema migrations recorded; no lineage reset.
+- `node scripts/verify-m4.cjs`: passed real browser search/filter/sort, 24-item initial page, successive pages through all 102 records, empty results, recoverable simulated API error/retry, modal keyboard trap/Escape/focus restoration, child-to-parent inspector navigation, deep-linked inspector reload, reduced motion and 360px/1440px overflow checks. No JavaScript page errors.
+- Browser filter update measured about 70 ms; successive page interactions/rendering measured 102/100/122/69 ms for 48/72/96/102 cards in this local headless Chrome run. These are observed desktop measurements rather than cross-device guarantees.
+- Actual saved-child JSON, SVG and PNG downloads succeeded for warm and transparent backgrounds. JSON preserves six-locus genome, both parents, generation, seeds and versions. Images decode at 512×512; SVG-to-PNG and preview-to-PNG mean pixel difference both 0. Warm RGBA corner is 246,243,232,255; transparent corner is 0,0,0,0. Exports contain no external artwork references or scripts.
+- Visually reviewed the complete desktop collection, desktop inspector, mobile collection/inspector and error state. Evidence and downloads are in artifacts/m4. Initial browser pagination assertions ran before React finished restoring the list after clearing empty search; the test now waits for the actual list. Keyboard QA found Chrome's native modal tab cycle can stop outside the document; explicit endpoint wrapping fixed it and the full suite passed afterward.
+
+M0–M4 are complete at http://localhost:8155. No known milestone blockers. The app is ready for further local iteration, not public launch: authentication, real owner authorization and throttling remain future work. No M5 economy, accounts or multiplayer were added. The requested .env origin/port are unchanged and excluded from Git.

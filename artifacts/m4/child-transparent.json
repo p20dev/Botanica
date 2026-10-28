@@ -1,0 +1,69 @@
+{
+  "id": "8c6d8b2b-836f-42e4-9ce7-0d42a773a287",
+  "name": "Velvetleaf · generation 1",
+  "ownerId": "00000000-0000-4000-8000-000000000001",
+  "speciesId": "velvetleaf",
+  "genome": {
+    "pigment": [
+      "G",
+      "P"
+    ],
+    "leafShape": [
+      "L",
+      "O"
+    ],
+    "flowerColor": [
+      "W",
+      "W"
+    ],
+    "growthHabit": [
+      "C",
+      "C"
+    ],
+    "leafPattern": [
+      "S",
+      "S"
+    ],
+    "flowerDensity": [
+      "H",
+      "M"
+    ]
+  },
+  "mutations": [],
+  "phenotype": {
+    "speciesId": "velvetleaf",
+    "catalogVersion": 1,
+    "pigment": "purple",
+    "leafShape": "lobed",
+    "leafPattern": "solid",
+    "growthHabit": "compact",
+    "flowerColor": "white",
+    "flowerDensity": "high",
+    "mutations": []
+  },
+  "visualSeed": 1550622050,
+  "genomeVersion": 1,
+  "rendererVersion": 1,
+  "generation": 1,
+  "parents": [
+    "df2f5481-7e5d-47ba-ae41-985aaf0561ee",
+    "10000000-0000-4000-8000-000000000002"
+  ],
+  "createdAt": "2026-10-28T09:46:36.573Z",
+  "creationSource": "bred",
+  "rarity": {
+    "score": 40,
+    "tier": "Rare",
+    "rarityPolicyVersion": 1,
+    "reasons": [
+      {
+        "label": "Unusual recessive growthHabit",
+        "points": 20
+      },
+      {
+        "label": "Unusual recessive flowerColor",
+        "points": 20
+      }
+    ]
+  }
+}

@@ -1,3 +1,4 @@
+import type { CollectionStats } from "@botanica/shared";
 import type {
   CatalogResponse,
   PlantDto,
@@ -43,6 +44,11 @@ export async function request<T>(
   return body as T;
 }
 export const api = {
+  stats: () => request<CollectionStats>("/collection/stats"),
+  birth: (id: string) =>
+    request<{ event: BreedingEventDto | null }>(
+      "/plants/" + encodeURIComponent(id) + "/birth",
+    ),
   catalog: () => request<CatalogResponse>("/catalog/species"),
   plant: (id: string) => request<PlantDto>("/plants/" + encodeURIComponent(id)),
   plants: (query = "") =>

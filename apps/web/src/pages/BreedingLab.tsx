@@ -1,6 +1,6 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Link } from "react-router";
+import { Link, useSearchParams } from "react-router";
 import { canBreed } from "@botanica/genetics";
 import { PlantPreview } from "../components/PlantPreview";
 import { QueryMessage } from "../components/QueryMessage";
@@ -58,8 +58,9 @@ function Parent({
   );
 }
 export function BreedingLab() {
+  const [search] = useSearchParams();
   const parents = useQuery({ queryKey: ["parents"], queryFn: loadAllParents }),
-    [a, setA] = useState(""),
+    [a, setA] = useState(search.get("parent") ?? ""),
     [b, setB] = useState(""),
     [cursor, setCursor] = useState<string | undefined>(),
     history = useQuery({
@@ -73,9 +74,14 @@ export function BreedingLab() {
     onSuccess: () => {
       void client.invalidateQueries({ queryKey: ["parents"] });
       void client.invalidateQueries({ queryKey: ["plants"] });
+      void client.invalidateQueries({ queryKey: ["collection-stats"] });
       void client.invalidateQueries({ queryKey: ["breeding"] });
     },
   });
+  const resultHeading = useRef<HTMLHeadingElement>(null);
+  useEffect(() => {
+    if (cross.data) resultHeading.current?.focus();
+  }, [cross.data]);
   const list = parents.data ?? [],
     left = list.find((p) => p.id === a),
     right = list.find((p) => p.id === b);
@@ -200,7 +206,12 @@ export function BreedingLab() {
           />
           <div>
             <p className="eyebrow">A new discovery</p>
-            <h2 id="offspring-title">{cross.data.plant.name}</h2>
+            <p role="status" className="saved-notice">
+              Cross saved to your collection.
+            </p>
+            <h2 id="offspring-title" ref={resultHeading} tabIndex={-1}>
+              {cross.data.plant.name}
+            </h2>
             <p>
               {cross.data.plant.phenotype.pigment} ·{" "}
               {cross.data.plant.phenotype.leafPattern} ·{" "}

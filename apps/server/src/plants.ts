@@ -1,3 +1,5 @@
+import { listCollection, collectionStats } from "./collection.js";
+import type { PlantListQuery } from "@botanica/shared";
 import { randomBytes, randomUUID } from "node:crypto";
 import type { Pool, PoolClient, QueryResultRow } from "pg";
 import { z } from "zod";
@@ -21,7 +23,7 @@ import type {
 import { DEMO_PLAYER_ID } from "./constants.js";
 import { ApiError } from "./errors.js";
 export const generateSeed = () => randomBytes(4).readInt32BE();
-interface PlantRow extends QueryResultRow {
+export interface PlantRow extends QueryResultRow {
   id: string;
   name: string;
   owner_id: string;
@@ -36,6 +38,7 @@ interface PlantRow extends QueryResultRow {
   parent_b_id: string | null;
   created_at: Date;
   cursor_time?: string;
+  sort_name?: string;
   creation_source: PlantDto["creationSource"];
   rarity_policy_version: 1;
   rarity_score: number;
@@ -201,35 +204,26 @@ export class PlantRepository {
       client.release();
     }
   }
-  async listPlants(query: {
-    limit: number;
-    cursor?: string;
-  }): Promise<PageDto<PlantDto>> {
-    const cursor = decodeCursor(query.cursor);
-    const rows = await this.pool.query<PlantRow>(
-      `SELECT *, to_char(created_at AT TIME ZONE 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.US"Z"') AS cursor_time FROM plants WHERE owner_id=$1 AND ($2::timestamptz IS NULL OR (created_at,id)<($2::timestamptz,$3::uuid)) ORDER BY created_at DESC,id DESC LIMIT $4`,
-      [
-        this.ownerId,
-        cursor?.createdAt ?? null,
-        cursor?.id ?? null,
-        query.limit + 1,
-      ],
-    );
-    const total = Number(
-      (
-        await this.pool.query(
-          "SELECT count(*) AS count FROM plants WHERE owner_id=$1",
-          [this.ownerId],
-        )
-      ).rows[0].count,
-    );
-    const hasNext = rows.rows.length > query.limit,
-      items = rows.rows.slice(0, query.limit);
+  async listPlants(query: PlantListQuery): Promise<PageDto<PlantDto>> {
+    const result = await listCollection(this.pool, this.ownerId, query);
     return {
-      items: items.map(plantDto),
-      nextCursor: hasNext ? cursorFor(items.at(-1)!) : null,
-      total,
+      items: result.rows.map(plantDto),
+      total: result.total,
+      nextCursor: result.nextCursor,
     };
+  }
+  async stats() {
+    return collectionStats(this.pool, this.ownerId);
+  }
+  async birthEvent(id: string) {
+    await this.getPlant(id);
+    const row = (
+      await this.pool.query<EventRow>(
+        "SELECT * FROM breeding_events WHERE child_id=$1 AND owner_id=$2",
+        [id, this.ownerId],
+      )
+    ).rows[0];
+    return { event: row ? eventDto(row) : null };
   }
   async listEvents(query: {
     limit: number;

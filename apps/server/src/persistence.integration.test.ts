@@ -37,7 +37,7 @@ describe.skipIf(!databaseUrl)(
       ).toBe(1);
       expect(
         Number((await pool.query("SELECT count(*) FROM plants")).rows[0].count),
-      ).toBe(2);
+      ).toBe(100);
     });
     it("persists a server-validated designed founder with secure default seed and rejects immutable claims", async () => {
       const payload = {
@@ -90,7 +90,7 @@ describe.skipIf(!databaseUrl)(
         seen.add(page.items[0].id);
         cursor = page.nextCursor;
       } while (cursor);
-      expect(seen.size).toBe(3);
+      expect(seen.size).toBe(101);
       expect(
         (await app.inject("/api/v1/plants?cursor=invalid")).statusCode,
       ).toBe(400);
@@ -142,7 +142,7 @@ describe.skipIf(!databaseUrl)(
       expect(result.event.mutationEvents).toEqual(expected.mutationEvents);
       expect(
         Number((await pool.query("SELECT count(*) FROM plants")).rows[0].count),
-      ).toBe(4);
+      ).toBe(102);
       expect(
         Number(
           (await pool.query("SELECT count(*) FROM breeding_events")).rows[0]
@@ -222,6 +222,90 @@ describe.skipIf(!databaseUrl)(
       expect(
         Number((await pool.query("SELECT count(*) FROM plants")).rows[0].count),
       ).toBe(before);
+      await pool.query("DELETE FROM plants WHERE id=ANY($1::uuid[])", [
+        [alien, foreign],
+      ]);
+      await pool.query("DELETE FROM species WHERE id='alien'");
+      await pool.query("DELETE FROM players WHERE id=$1", [owner]);
+    });
+    it("filters, searches and sorts the persisted collection with stable bounded pages", async () => {
+      for (const sort of ["newest", "oldest", "name", "rarity"]) {
+        const seen = new Set<string>();
+        let cursor = null;
+        let previous = null;
+        do {
+          const page = (
+            await app.inject(
+              "/api/v1/plants?limit=17&sort=" +
+                sort +
+                (cursor ? "&cursor=" + encodeURIComponent(cursor) : ""),
+            )
+          ).json();
+          expect(page.items.length).toBeLessThanOrEqual(17);
+          for (const plant of page.items) {
+            expect(seen.has(plant.id)).toBe(false);
+            seen.add(plant.id);
+            if (previous && sort === "rarity")
+              expect(previous.rarity.score).toBeGreaterThanOrEqual(
+                plant.rarity.score,
+              );
+            if (previous && sort === "name")
+              expect(
+                previous.name.toLowerCase() <= plant.name.toLowerCase(),
+              ).toBe(true);
+            previous = plant;
+          }
+          cursor = page.nextCursor;
+        } while (cursor);
+        expect(seen.size).toBe(103);
+      }
+      for (const filter of [
+        "pigment=purple",
+        "pattern=marbled",
+        "rarity=Legendary",
+        "species=velvetleaf",
+      ]) {
+        const response = await app.inject("/api/v1/plants?limit=100&" + filter);
+        expect(response.statusCode).toBe(200);
+        const page = response.json();
+        expect(page.items.length).toBeGreaterThan(0);
+        for (const p of page.items) {
+          if (filter === "pigment=purple")
+            expect(p.phenotype.pigment).toBe("purple");
+          if (filter === "pattern=marbled")
+            expect(p.phenotype.leafPattern).toBe("marbled");
+          if (filter === "rarity=Legendary")
+            expect(p.rarity.tier).toBe("Legendary");
+        }
+      }
+      const matching = (
+        await app.inject("/api/v1/plants?q=Acceptance%20founder")
+      ).json();
+      expect(matching.total).toBe(1);
+      expect(
+        (await app.inject("/api/v1/plants?q=zzzz-no-match")).json().total,
+      ).toBe(0);
+      expect((await app.inject("/api/v1/plants?q=%25")).json().total).toBe(0);
+      expect(
+        (await app.inject("/api/v1/plants?sort=arbitrarySQL")).statusCode,
+      ).toBe(400);
+      const first = (await app.inject("/api/v1/plants?limit=1")).json();
+      expect(
+        (
+          await app.inject(
+            "/api/v1/plants?sort=name&cursor=" +
+              encodeURIComponent(first.nextCursor),
+          )
+        ).statusCode,
+      ).toBe(400);
+      const stats = (await app.inject("/api/v1/collection/stats")).json();
+      expect(stats.total).toBe(103);
+      expect(
+        Object.values(stats.byRarity).reduce(
+          (a, b) => Number(a) + Number(b),
+          0,
+        ),
+      ).toBe(103);
     });
     it("rolls back the child when event insertion fails and returns a safe error", async () => {
       await pool.query(

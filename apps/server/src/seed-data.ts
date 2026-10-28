@@ -1,3 +1,4 @@
+import { demoSpecimen } from "./demo-plants.js";
 import { velvetleaf, exampleGenome } from "@botanica/genetics";
 import type { Pool } from "pg";
 import { insertPlant } from "./plants.js";
@@ -40,6 +41,8 @@ export async function seedDatabase(pool: Pool) {
       visualSeed: 1440,
       creationSource: "demo",
     });
+    for (let index = 0; index < 98; index++)
+      await insertPlant(client, demoSpecimen(index));
     await client.query("COMMIT");
   } catch (error) {
     await client.query("ROLLBACK");

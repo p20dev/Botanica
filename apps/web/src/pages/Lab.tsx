@@ -31,6 +31,7 @@ export function Lab() {
     mutationFn: api.create,
     onSuccess: () => {
       void client.invalidateQueries({ queryKey: ["plants"] });
+      void client.invalidateQueries({ queryKey: ["collection-stats"] });
       void client.invalidateQueries({ queryKey: ["parents"] });
     },
   });

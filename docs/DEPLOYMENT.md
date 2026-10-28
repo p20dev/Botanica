@@ -42,3 +42,13 @@ Later replace `PUBLIC_DOMAIN` with a true HTTPS origin and configure TLS at the 
 Compose publishes web on loopback (`127.0.0.1:${HOST_PORT}:8080`), with nginx running as an unprivileged user. API and DB have no published ports. The `bootstrap` one-shot service uses the API image to run `node dist/migrate.js` then `node dist/seed.js`; API waits for successful completion. A PostgreSQL transaction advisory lock serializes migration execution. A migration tracking table prevents repeat schema application. Player seeds use conflict-safe inserts and preserve existing records. The M1 catalog seed synchronizes the current versioned definition; it does not rewrite plant genomes or ancestry.
 
 For explicit reruns use `docker compose run --rm bootstrap node dist/migrate.js` or `docker compose run --rm bootstrap node dist/seed.js`. Runtime images contain compiled JavaScript; root npm migration/seed scripts use TypeScript tooling for host development with an explicit `DATABASE_URL`. Compose production mode overrides the starter development value without modifying `.env`.
+
+## M3–M4 persistence and collection
+
+The additive `0002_plant_details` migration adds plant names, creation source and persisted birth rarity reasons. Migrations are applied in filename order inside a single advisory-locked transaction and tracked by name; repeat bootstrap does not rewrite existing plants, their parents, generations, genomes or seeds. The fixed demo owner is only sandbox scoping and must not be treated as real authentication.
+
+The seed now creates exactly 100 fixed-ID demonstration specimens, including the original two named parents. Conflicting plant IDs are left untouched. A fresh installation therefore has 100 demo plants; manual designs and bred offspring increase the total. Curated demo modifiers are labeled as demonstrations rather than bred mutation outcomes.
+
+Run the isolated acceptance database with `npm run test:integration`, then `docker compose -f compose.test.yaml down`. That Compose project uses a tmpfs database, no persistent volume and no published ports. It neither resets nor connects to the application's named volume. The deliberate rollback test logs an expected PostgreSQL exception while checking that the API returns only a safe generic response.
+
+API examples and cursor/idempotency contracts are documented in `docs/API_EXAMPLES.md`. Before any public deployment add real identity, owner authorization, rate limits, TLS/access controls and operational backup/restore checks. The current published address remains loopback-only. Future game scope is documented in `docs/ROADMAP.md` and is not implemented.

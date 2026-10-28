@@ -1,145 +1,31 @@
-import { Lab } from "./pages/Lab";
-import { BreedingLab } from "./pages/BreedingLab";
-import { PlantDetails } from "./pages/PlantDetails";
-import { RenderLab } from "./pages/RenderLab";
-import { RenderGallery } from "./pages/RenderGallery";
-import React from "react";
+import React, { useEffect } from "react";
 import { createRoot } from "react-dom/client";
-import { BrowserRouter, NavLink, Navigate, Route, Routes } from "react-router";
+import {
+  BrowserRouter,
+  NavLink,
+  Navigate,
+  Route,
+  Routes,
+  Link,
+  useLocation,
+} from "react-router";
 import {
   QueryClient,
   QueryClientProvider,
   useQuery,
 } from "@tanstack/react-query";
-import {
-  Leaf,
-  ArrowUpRight,
-  FlaskConical,
-  Sprout,
-  Images,
-  BookOpen,
-} from "lucide-react";
+import { Leaf } from "lucide-react";
+import { Lab } from "./pages/Lab";
+import { BreedingLab } from "./pages/BreedingLab";
+import { Collection } from "./pages/Collection";
+import { PlantDetails } from "./pages/PlantDetails";
+import { RenderGallery } from "./pages/RenderGallery";
+import { BotanicalPlate } from "./components/BotanicalPlate";
+import { AppErrorBoundary } from "./components/AppErrorBoundary";
 import "./styles.css";
-const queryClient = new QueryClient();
-const pages = {
-  lab: {
-    label: "Laboratory",
-    eyebrow: "A place for possibility",
-    title: "Small seeds. Endless possibilities.",
-    description:
-      "A botanical cabinet for curious minds. Explore the art of growing, the patterns of inheritance, and the delight of something unexpected.",
-    empty: "Your workbench is taking root",
-    detail:
-      "The laboratory is ready for its first species. Genome controls and live plant previews arrive in the next milestones.",
-    icon: FlaskConical,
-  },
-  breed: {
-    label: "Breeding",
-    eyebrow: "The next generation",
-    title: "Every cross begins a new story.",
-    description:
-      "Bring two compatible plants together and follow the traits they pass on.",
-    empty: "No parents to pair yet",
-    detail:
-      "Saved parent plants and authoritative breeding will arrive in milestone M3.",
-    icon: Sprout,
-  },
-  gallery: {
-    label: "Collection",
-    eyebrow: "Your living archive",
-    title: "A collection worth cultivating.",
-    description:
-      "A home for each discovery, from familiar greens to the wonderfully unusual.",
-    empty: "Room for your first discovery",
-    detail:
-      "Your saved plants will appear here. The collection gallery arrives in milestone M4.",
-    icon: Images,
-  },
-  about: {
-    label: "Field notes",
-    eyebrow: "About this experiment",
-    title: "Botany meets a little imagination.",
-    description:
-      "Plant Laboratory is the first chapter of Botanica, a future plant-breeding idle game.",
-    empty: "Fictional genetics, real curiosity",
-    detail:
-      "This educational game uses simplified, fictional Mendelian genetics. It is not a scientifically accurate botany simulator. This local sandbox has no accounts yet.",
-    icon: BookOpen,
-  },
-};
-function BotanicalPlate() {
-  return (
-    <svg
-      viewBox="0 -20 480 530"
-      role="img"
-      aria-label="Original botanical study of a leafy plant in a terracotta pot"
-    >
-      <defs>
-        <linearGradient id="leaf" x2="1" y2="1">
-          <stop stopColor="#718c58" />
-          <stop offset="1" stopColor="#284e3a" />
-        </linearGradient>
-      </defs>
-      <circle cx="246" cy="231" r="172" fill="#e6e9d7" />
-      <circle
-        cx="246"
-        cy="231"
-        r="151"
-        fill="none"
-        stroke="#b9c6a8"
-        strokeDasharray="2 8"
-      />
-      <ellipse cx="242" cy="458" rx="95" ry="12" fill="#283c2b" opacity=".09" />
-      <path
-        d="M239 362 Q225 263 252 108 M238 321 L171 251 M241 275 L315 209 M244 224 L199 160 M247 178 L297 127"
-        fill="none"
-        stroke="#486345"
-        strokeWidth="6"
-        strokeLinecap="round"
-      />
-      {[
-        [171, 251, -52],
-        [315, 209, 45],
-        [199, 160, -41],
-        [297, 127, 35],
-        [252, 108, 0],
-      ].map(([x, y, r], i) => (
-        <g key={i} transform={`translate(${x} ${y}) rotate(${r})`}>
-          <path
-            d="M0 8 C-67-18-58-92 0-113 C53-81 56-22 0 8Z"
-            fill="url(#leaf)"
-            stroke="#486345"
-            strokeWidth="1.5"
-          />
-          <path
-            d="M0 6 Q-7-47 0-100 M-3-30 L-32-57 M-4-49 L27-75 M-3-66 L-24-84"
-            fill="none"
-            stroke="#b9c69a"
-            strokeWidth="1.6"
-          />
-          <path
-            d="M-12-79 Q-38-54-26-30"
-            fill="none"
-            stroke="#c7d1a6"
-            strokeWidth="7"
-            opacity=".15"
-          />
-        </g>
-      ))}
-      <path d="M181 363 L195 444 Q240 464 286 444 L301 363Z" fill="#b77659" />
-      <path d="M195 380 L205 438 Q216 444 224 444 L216 380" fill="#cc9171" />
-      <path
-        d="M181 363 Q241 347 301 363 L301 379 Q239 394 181 379Z"
-        fill="#cc9474"
-      />
-      <ellipse cx="241" cy="362" rx="59" ry="10" fill="#765a40" />
-      <path d="M240 363 L239 341" stroke="#486345" strokeWidth="6" />
-      <text x="38" y="486" fill="#6a7c70" fontFamily="Georgia" fontSize="12">
-        Fig. 01 — A study in green
-      </text>
-    </svg>
-  );
-}
+const queryClient = new QueryClient({
+  defaultOptions: { queries: { retry: 1, refetchOnWindowFocus: false } },
+});
 function Health() {
   const result = useQuery({
     queryKey: ["health"],
@@ -162,53 +48,66 @@ function Health() {
     </span>
   );
 }
-function Page({ page }: { page: keyof typeof pages }) {
-  const p = pages[page];
-  const Icon = p.icon;
+
+function About() {
   return (
     <>
       <section className="hero">
         <div className="intro">
-          <p className="eyebrow">{p.eyebrow}</p>
-          <h1>{p.title}</h1>
-          <p className="description">{p.description}</p>
-          <div className="edition">
-            <span>PLANT LABORATORY</span>
-            <span>Local sandbox · No. 001</span>
-          </div>
+          <p className="eyebrow">Field notes / Plant Laboratory</p>
+          <h1>Botany meets a little imagination.</h1>
+          <p className="description">
+            An illustrated breeding sandbox inspired by Mendelian genetics. The
+            plants are fictional; the joy of discovering a new combination is
+            yours.
+          </p>
+          <Link className="text-link" to="/lab">
+            Begin a botanical study →
+          </Link>
         </div>
         <figure>
           <BotanicalPlate />
-          <figcaption>BOTANICAL STUDY / ILLUSTRATED SHELL ART</figcaption>
+          <figcaption>AN ORIGINAL BOTANICAL STUDY</figcaption>
         </figure>
       </section>
-      <section className="workbench" aria-labelledby="workspace-title">
-        <div className="section-heading">
-          <div>
-            <p className="eyebrow">{p.label}</p>
-            <h2 id="workspace-title">
-              {page === "lab" ? "The workbench" : p.label}
-            </h2>
-          </div>
-          <span className="badge">M2 · Foundations</span>
-        </div>
-        <div className="empty">
-          <span className="icon">
-            <Icon size={25} strokeWidth={1.4} />
-          </span>
-          <h3>{p.empty}</h3>
-          <p>{p.detail}</p>
-          {page === "lab" && (
-            <NavLink to="/about" className="text-link">
-              Read the field notes <ArrowUpRight size={16} />
-            </NavLink>
-          )}
-        </div>
+      <section className="about-notes">
+        <article>
+          <h2>Paired traits</h2>
+          <p>
+            Each of six loci carries two alleles. Dominance resolves their
+            expression. A child inherits one allele from each saved parent, with
+            small, recorded chances of mutation. This simplified game model is
+            not a scientifically accurate botany simulator.
+          </p>
+        </article>
+        <article>
+          <h2>A traceable collection</h2>
+          <p>
+            Saved plants retain their genomes, versions, cosmetic seeds and
+            ancestry. Rarity is a score derived from traits, separate from how
+            often a trait occurs in your collection. Demonstration specimens are
+            curated examples, clearly labeled.
+          </p>
+        </article>
+        <article>
+          <h2>A first chapter</h2>
+          <p>
+            Plant Laboratory is Botanica's first working module. Greenhouse
+            progression, resources, research and accounts are future work. This
+            local sandbox has no authentication and is not ready for public
+            internet use.
+          </p>
+        </article>
       </section>
     </>
   );
 }
 function App() {
+  const { pathname } = useLocation();
+  useEffect(() => {
+    document.getElementById("main")?.focus({ preventScroll: true });
+    window.scrollTo({ top: 0 });
+  }, [pathname]);
   return (
     <>
       <a href="#main" className="skip">
@@ -220,45 +119,39 @@ function App() {
             <Leaf size={25} />
           </span>
           <span>
-            Plant Laboratory<small>BOTANICA / EXPERIMENT NO. 001</small>
+            Plant Laboratory<small>BOTANICA / PLANT LABORATORY</small>
           </span>
         </NavLink>
         <nav aria-label="Main navigation">
-          {Object.entries(pages).map(([key, p]) => (
-            <NavLink key={key} to={`/${key}`}>
-              {p.label}
+          {[
+            ["lab", "Laboratory"],
+            ["breed", "Breeding"],
+            ["gallery", "Collection"],
+            ["about", "Field notes"],
+          ].map(([key, label]) => (
+            <NavLink key={key} to={"/" + key}>
+              {label}
             </NavLink>
           ))}
         </nav>
       </header>
-      <main id="main">
+      <main id="main" tabIndex={-1}>
         <Routes>
           <Route path="/" element={<Navigate to="/lab" replace />} />
-          {Object.keys(pages).map((key) => (
-            <Route
-              key={key}
-              path={`/${key}`}
-              element={
-                key === "lab" ? (
-                  <Lab />
-                ) : key === "breed" ? (
-                  <BreedingLab />
-                ) : key === "gallery" ? (
-                  <RenderGallery />
-                ) : (
-                  <Page page={key as keyof typeof pages} />
-                )
-              }
-            />
-          ))}
+          <Route path="/lab" element={<Lab />} />
+          <Route path="/breed" element={<BreedingLab />} />
+          <Route path="/gallery" element={<Collection />} />
           <Route path="/plants/:id" element={<PlantDetails />} />
           <Route path="/studies" element={<RenderGallery />} />
+          <Route path="/about" element={<About />} />
           <Route
             path="*"
             element={
               <section className="empty">
                 <h1>Page not found</h1>
-                <NavLink to="/lab">Return to the laboratory</NavLink>
+                <Link className="text-link" to="/lab">
+                  Return to the laboratory →
+                </Link>
               </section>
             }
           />
@@ -275,7 +168,9 @@ createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
-        <App />
+        <AppErrorBoundary>
+          <App />
+        </AppErrorBoundary>
       </BrowserRouter>
     </QueryClientProvider>
   </React.StrictMode>,

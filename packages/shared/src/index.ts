@@ -76,3 +76,19 @@ export interface BreedingResponse {
 }
 export type CreatePlantRequest = z.input<typeof createPlantSchema>;
 export type BreedingRequest = z.infer<typeof breedingRequestSchema>;
+
+export const plantListQuerySchema = pageQuerySchema.extend({
+  species: z.literal("velvetleaf").optional(),
+  rarity: z
+    .enum(["Common", "Uncommon", "Rare", "Epic", "Legendary", "Mythic"])
+    .optional(),
+  pigment: z.enum(["green", "purple", "red", "yellow"]).optional(),
+  pattern: z.enum(["solid", "variegated", "marbled"]).optional(),
+  q: z.string().trim().max(80).optional(),
+  sort: z.enum(["newest", "oldest", "name", "rarity"]).default("newest"),
+});
+export type PlantListQuery = z.infer<typeof plantListQuerySchema>;
+export interface CollectionStats {
+  total: number;
+  byRarity: Partial<Record<PlantDto["rarity"]["tier"], number>>;
+}

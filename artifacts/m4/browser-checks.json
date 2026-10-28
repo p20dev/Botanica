@@ -1,0 +1,67 @@
+{
+  "checks": [
+    "no overflow 1440 /gallery",
+    "Pigment filter/sort purple",
+    "Pattern filter/sort marbled",
+    "Rarity filter/sort Legendary",
+    "Sort plants filter/sort name",
+    "100+ persisted plants paginated",
+    "modal focus trap, Escape and restoration",
+    "inspector child to saved parent navigation",
+    "recoverable API error and retry",
+    "no overflow 360 /lab",
+    "no overflow 360 /breed",
+    "no overflow 360 /gallery",
+    "no overflow 360 /plants/8c6d8b2b-836f-42e4-9ce7-0d42a773a287",
+    "no overflow 360 /about",
+    "deep-linked inspector reload and reduced motion"
+  ],
+  "errors": [],
+  "exports": [
+    {
+      "background": "warm",
+      "width": 512,
+      "height": 512,
+      "corner": [
+        246,
+        243,
+        232,
+        255
+      ],
+      "svgDifference": 0,
+      "previewDifference": 0
+    },
+    {
+      "background": "transparent",
+      "width": 512,
+      "height": 512,
+      "corner": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "svgDifference": 0,
+      "previewDifference": 0
+    }
+  ],
+  "pagination": [
+    {
+      "cards": 48,
+      "elapsedMs": 102
+    },
+    {
+      "cards": 72,
+      "elapsedMs": 100
+    },
+    {
+      "cards": 96,
+      "elapsedMs": 122
+    },
+    {
+      "cards": 102,
+      "elapsedMs": 69
+    }
+  ],
+  "filterMs": 70
+}

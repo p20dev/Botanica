@@ -1,10 +1,10 @@
 # Plant Laboratory / Botanica
 
-M0–M2 provide a running React laboratory, deterministic genetics, illustrated SVG renderer, Fastify API, PostgreSQL schema and repeatable bootstrap. Persistent plant creation and breeding follow in M3.
+A working local botanical sandbox: edit paired alleles, preview illustrated velvetleaf plants, save founders, breed traceable offspring and explore a persistent collection. M0–M4 are implemented. The game uses simplified fictional genetics.
 
 ## Run
 
-Keep `.env` local. Copy `.env.example` if missing; preserve `HOST_PORT=8155` and `PUBLIC_DOMAIN=http://localhost`.
+Keep `.env` local and preserve `HOST_PORT=8155`, `PUBLIC_DOMAIN=http://localhost`. Copy `.env.example` if the file is missing.
 
 ```sh
 npm ci
@@ -14,37 +14,48 @@ docker compose ps
 curl -fsS http://localhost:8155/health
 ```
 
-Open http://localhost:8155. Only the web entrypoint is published, bound to loopback. API and PostgreSQL use the Compose network. The one-shot `bootstrap` service runs a transaction-locked migration followed by an idempotent demo-player/catalog seed before API startup. A named volume retains data across `docker compose down` and `up`; do not use `down -v` unless intentionally deleting all data.
+Open http://localhost:8155. Only the web entrypoint is published, bound to loopback. API and PostgreSQL stay on the Compose network. The one-shot bootstrap service applies transaction-locked, tracked migrations, then seeds the sandbox owner/catalog and 100 deterministic demo plants. Repeat runs do not duplicate or overwrite plants. A named volume retains your collection across `docker compose down` / `up`. Do not use `down -v` unless intentionally deleting all saved data.
 
-## Development and checks
+## Explore
+
+- `/lab`: complete diploid allele editor, phenotype and rarity explanations, stage/cosmetic seed controls, manual mutation preview, image exports and save designed founder.
+- `/breed`: saved parent pickers, compatibility, server-authoritative breeding, saved child, lineage and journal. Failed requests retry with the same idempotency key.
+- `/gallery`: persisted collection with search, trait filters, sorting and 24-item pagination. The keyboard-accessible specimen inspector includes genotype, ancestry, birth records and JSON/SVG/PNG exports.
+- `/plants/:id`: directly linkable plant detail and ancestry navigation.
+- `/studies`: M2 systematic 12-variation atlas and 100-seed renderer proof.
+- `/about`: fictional genetics, the local prototype and future scope.
+
+Manual golden-vein previews affect image exports only. Saving from the editor creates a new founder without those preview mutations. Bred mutations and rarity outcomes are recorded once on the server. Collection frequency is shown separately from the trait-derived rarity tier.
+
+## Checks and development
 
 ```sh
 npm run typecheck
 npm run test
 npm run build
-npm run dev
+npm run test:integration
+docker compose -f compose.test.yaml down
 ```
 
-`npm run dev` serves Vite on port 5173 and API on 3000. Set `DATABASE_URL` to a reachable PostgreSQL database for host development; Compose intentionally does not publish its database. Prefer Compose for the complete runtime.
+The regular test command builds pure package dependencies, runs domain/API tests and checks original SVG source synchronization. Integration cases are skipped unless `TEST_DATABASE_URL` is provided. `test:integration` builds a separate `botanica-checks` stack with a fresh tmpfs PostgreSQL database, no published ports and no access to the application's saved data. It tests clean migrations, idempotent 100-plant seed, persistence, concurrency, rollback, ownership, filter/search/sort and pagination. Cleanup removes only the temporary test stack.
 
-Root `npm run db:migrate` and `npm run db:seed` require `DATABASE_URL`. Against Compose:
+`npm run dev` starts Vite (5173) and API (3000); provide a reachable PostgreSQL `DATABASE_URL` in the host environment. Compose intentionally does not publish its database. Prefer Compose for the complete runtime.
+
+Root `npm run db:migrate` / `npm run db:seed` use TypeScript tooling with an explicit `DATABASE_URL`. Against Compose:
 
 ```sh
 docker compose run --rm bootstrap node dist/migrate.js
 docker compose run --rm bootstrap node dist/seed.js
 ```
 
-Migrations are checked-in SQL tracked in `schema_migrations`; player seeds preserve existing records; the catalog seed synchronizes the current catalog definition without changing plants or ancestry. `.env` is ignored by Git and Docker build contexts. Production containers run as non-root. The API returns safe uniform errors and health responds 503 if PostgreSQL is unavailable. Relative browser API URLs avoid container hostname leakage. `PUBLIC_BASE_URL` is validated and derived from origin plus port for localhost, or just origin behind a production reverse proxy.
+Production images run as non-root and contain compiled code. nginx handles SPA routes and proxies `/api/` and `/health`; relative browser URLs keep private container hostnames out of clients. `PUBLIC_BASE_URL` derives localhost plus the exposed port, or just the HTTPS origin behind a production reverse proxy. `.env` is ignored by both Git and Docker build contexts.
 
-Routes: `/` redirects to `/lab`, which contains curated rendering studies, four stages, cosmetic seed and manual golden-vein preview, derived trait inspection, and SVG/PNG export with warm or transparent background. `/gallery` is a proof atlas of 12 systematic variants plus a 100-seed rendering demo. `/breed` remains a clearly labeled M3 empty state; `/about` explains the fictional genetics model. These studies are not saved plants. No authentication: this sandbox is intended for local use.
+## Browser acceptance and artwork
 
-Read [the implementation plan](docs/IMPLEMENTATION_PLAN.md) and [progress log](docs/PROGRESS.md) for acceptance gates.
+`scripts/verify-m3.cjs` and `scripts/verify-m4.cjs` exercise the real application with Playwright/Chrome and write screenshots, exports and measurements to `artifacts/`. Provide a Playwright package through `PLAYWRIGHT_MODULE` and optionally a browser binary through `BROWSER_EXECUTABLE`. Run the M3 script before M4 so the latter can follow its persisted child and parents. Browser checks intentionally retain their labeled founder/offspring as evidence of persistence. M0/M2 artifacts document earlier gates; their historical scripts target their respective earlier UI.
 
+The pure renderer composes 15 original handcrafted SVG primitives, six palettes and deterministic layout. `npm run assets:write` regenerates primitive sources from typed path definitions; tests reject source drift. [Artwork provenance](assets/README.md) documents CC0 assets. No runtime image services, remote fonts, trackers or paid APIs are used.
 
-## Domain and artwork
+See [API examples](docs/API_EXAMPLES.md), [deployment](docs/DEPLOYMENT.md), [progress](docs/PROGRESS.md) and [future roadmap](docs/ROADMAP.md).
 
-Genetics v1 uses fixed-locus diploid genomes, explicit dominance, seeded Mulberry32 inheritance, mutation logs and derived rarity. The catalog and phenotype preview APIs are available under `/api/v1`; see `docs/API_AND_DATA.md` for request examples. Pure packages use built JS exports; root build/typecheck/test/dev scripts first build package dependencies in order.
-
-Velvetleaf is composed from 15 original handcrafted SVG primitives and six curated palettes. `npm run assets:write` regenerates standalone primitive sources from the typed paths; tests reject source drift. `assets/README.md` documents CC0 artwork provenance. Geometry is deterministic and all exported assets are self-contained.
-
-For optional browser acceptance QA, install/provide Playwright and Chrome, then run `node scripts/verify-m2.cjs` against the running Compose app. `PLAYWRIGHT_MODULE` may point to an available Playwright package and `BROWSER_EXECUTABLE` to a browser binary. The script checks desktop/mobile overflow, 12/100 rendering studies, namespace collisions, seed invariance, real downloads, PNG alpha/background and pixel equivalence to the live preview. Screenshots and measurements are written to `artifacts/m2`.
+This is a local single-owner demo without authentication. It is ready for further iteration, not public internet launch. Add real authentication, ownership/access controls, throttling and deployment hardening first.

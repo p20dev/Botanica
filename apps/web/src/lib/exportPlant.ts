@@ -5,7 +5,7 @@ import {
   type GrowthStage,
 } from "@botanica/renderer";
 import type { Phenotype } from "@botanica/genetics";
-function download(blob: Blob, filename: string) {
+export function download(blob: Blob, filename: string) {
   const url = URL.createObjectURL(blob),
     anchor = document.createElement("a");
   anchor.href = url;
