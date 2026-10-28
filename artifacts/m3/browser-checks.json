@@ -1,0 +1,15 @@
+{
+  "savedPlantId": "df2f5481-7e5d-47ba-ae41-985aaf0561ee",
+  "childId": "8c6d8b2b-836f-42e4-9ce7-0d42a773a287",
+  "eventId": "0a87f7ef-6844-4ff3-a04e-fae3c33bd35e",
+  "checks": [
+    "allele preview update",
+    "manual mutation not persisted",
+    "saved founder reload",
+    "persisted cross and generation",
+    "child reload",
+    "lineage parent link",
+    "360px no overflow"
+  ],
+  "errors": []
+}

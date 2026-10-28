@@ -1,3 +1,6 @@
+import { Lab } from "./pages/Lab";
+import { BreedingLab } from "./pages/BreedingLab";
+import { PlantDetails } from "./pages/PlantDetails";
 import { RenderLab } from "./pages/RenderLab";
 import { RenderGallery } from "./pages/RenderGallery";
 import React from "react";
@@ -237,7 +240,9 @@ function App() {
               path={`/${key}`}
               element={
                 key === "lab" ? (
-                  <RenderLab />
+                  <Lab />
+                ) : key === "breed" ? (
+                  <BreedingLab />
                 ) : key === "gallery" ? (
                   <RenderGallery />
                 ) : (
@@ -246,6 +251,8 @@ function App() {
               }
             />
           ))}
+          <Route path="/plants/:id" element={<PlantDetails />} />
+          <Route path="/studies" element={<RenderGallery />} />
           <Route
             path="*"
             element={

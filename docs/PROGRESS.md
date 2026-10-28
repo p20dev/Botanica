@@ -3,7 +3,7 @@
 - [x] M0 — workspaces, Compose, healthcheck, migrations, responsive shell.
 - [x] M1 — genetics contracts, deterministic PRNG, pure engine + tests.
 - [x] M2 — procedural illustrated SVG renderer, exports, visual QA.
-- [ ] M3 — lab editor, server persistence, breeding flow.
+- [x] M3 — lab editor, server persistence, breeding flow.
 - [ ] M4 — gallery, provenance, UX polish, full acceptance.
 
 ## M0 — 2026-10-28
@@ -70,3 +70,15 @@ Added memoized PlantPreview adapter, a usable `/lab` visual-study workbench (cur
 Screenshots, real exported SVG/PNG files and structured measurements are in `artifacts/m2/`. The optional browser script is checked in and documents its external Playwright/browser requirements in README.
 
 No known M2 blockers. Local sandbox only; persistent plant creation, full genome editor, saved breeding and lineage navigation are intentionally not implemented before M3. `.env` values remain unchanged and excluded from Git. Stop at M2 as requested; next milestone is M3.
+
+## M3 — 2026-10-28
+
+Gate complete before starting M4. Added full diploid genome editor with live phenotype/rarity explanation, species selection, stage/cosmetic seed controls, manual-mutation preview labeling and saved founder creation. Added saved plant inspector with genotype, phenotype, provenance, parents and navigation. Added saved-parent breeding UI, compatibility messages, persistent offspring and paginated journal.
+
+Server validates shared strict DTOs, generates initial/event seeds with crypto.randomBytes, scopes records to the sandbox owner, and persists canonical genome, mutation outcome, rarity score/tier/reasons, versions and lineage. Breeding takes only parent IDs and idempotency key. A transaction-scoped advisory lock serializes identical keys; child and event commit together; reuse with a different pair returns 409. Additive 0002 migration stores names, creation source and birth-time rarity explanations without rewriting genomes or ancestry. Cursor pagination preserves PostgreSQL microseconds to handle timestamp ties correctly. Seed creates two fixed demo parents idempotently. Manual mutation previews are excluded from saved designed founders and explicitly explained in the UI.
+
+Checks run: `npm run typecheck`, `npm run test` (16 unit/domain/API tests passed; seven DB cases intentionally skipped without TEST_DATABASE_URL), `npm run build`, `docker compose config --quiet`, `docker compose up --build -d`, `docker compose ps`, and proxied curl health (200 connected). Separately ran `docker compose -f compose.test.yaml up --build --abort-on-container-exit --exit-code-from test`: all seven real PostgreSQL integration cases passed on a clean tmpfs DB. They cover repeated clean migration/seed, canonical persistence/claim rejection, tied-timestamp pagination, 12 simultaneous retries producing exactly one child/event with replayable seed, generation increments, incompatible and foreign-owned parent rejection, and forced event failure rolling back the child with a safe 500 response. Removed only the isolated test containers afterward.
+
+`node scripts/verify-m3.cjs` passed live browser acceptance: editing a pigment allele changes visible phenotype/SVG; save excludes the manual mutation; founder and child survive reload; offspring has two persisted parents and generation 1; lineage navigates to the saved founder; laboratory, breeding and detail pages fit 360px. Desktop/mobile screenshots and result IDs are in artifacts/m3. The first browser attempt used a label-text locator that included select-option text; the actual accessible combobox names were verified and the test corrected. No app defect was suppressed. Visually reviewed laboratory and breeding screens.
+
+URL: http://localhost:8155. Known limit: collection filtering/demo population belongs to M4; no auth or public release. The UI acceptance founder and its offspring are retained as evidence of persistence. Continuing to M4 under user authorization.

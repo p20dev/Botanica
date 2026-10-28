@@ -27,6 +27,9 @@ export const plants = pgTable(
   "plants",
   {
     id: uuid().primaryKey(),
+    name: text().notNull().default("Velvetleaf"),
+    creationSource: text("creation_source").notNull().default("designed"),
+    rarityReasons: jsonb("rarity_reasons").notNull().default([]),
     ownerId: uuid("owner_id")
       .notNull()
       .references(() => players.id),

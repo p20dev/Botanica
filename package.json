@@ -16,7 +16,8 @@
     "build:packages": "npm run build -w @botanica/rules && npm run build -w @botanica/genetics && npm run build -w @botanica/shared && npm run build -w @botanica/renderer",
     "pretest": "npm run build:packages",
     "predev": "npm run build:packages",
-    "assets:write": "npm run build:packages && node scripts/write-assets.mjs"
+    "assets:write": "npm run build:packages && node scripts/write-assets.mjs",
+    "test:integration": "docker compose -f compose.test.yaml up --build --abort-on-container-exit --exit-code-from test"
   },
   "devDependencies": {
     "typescript": "~5.9.3",

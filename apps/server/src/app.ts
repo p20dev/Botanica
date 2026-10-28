@@ -1,3 +1,6 @@
+import type { Pool } from "pg";
+import { ApiError } from "./errors.js";
+import { registerPlantRoutes } from "./plant-routes.js";
 import { registerPreviewRoute } from "./preview-route.js";
 import { ZodError } from "zod";
 import { GeneticsError } from "@botanica/genetics";
@@ -6,6 +9,7 @@ import Fastify from "fastify";
 export function createApp(
   checkDatabase: () => Promise<unknown>,
   logger = false,
+  pool?: Pool,
 ) {
   const app = Fastify({ logger, bodyLimit: 65536 });
   app.get("/health", async (_request, reply) => {
@@ -23,12 +27,17 @@ export function createApp(
   });
   registerGeneticsRoutes(app);
   registerPreviewRoute(app);
+  if (pool) registerPlantRoutes(app, pool);
   app.setNotFoundHandler((_request, reply) =>
     reply
       .code(404)
       .send({ error: { code: "NOT_FOUND", message: "Route not found." } }),
   );
   app.setErrorHandler((error, request, reply) => {
+    if (error instanceof ApiError)
+      return reply
+        .code(error.statusCode)
+        .send({ error: { code: error.code, message: error.message } });
     if (error instanceof ZodError)
       return reply.code(400).send({
         error: {
