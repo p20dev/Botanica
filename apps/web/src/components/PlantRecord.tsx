@@ -10,23 +10,36 @@ import { ExportActions } from "./ExportActions";
 import { QueryMessage } from "./QueryMessage";
 import { locusLabels } from "./GenomeEditor";
 import { api } from "../lib/api";
+import { request } from "../lib/api";
+import type { CollectionStats, BreedingEventDto } from "@botanica/shared";
+import { PlantGameActions } from "./PlantGameActions";
 export function PlantRecord({
   plant: p,
   onParent,
+  scope = "owned",
 }: {
   plant: PlantDto;
   onParent?: (id: string) => void;
+  scope?: "owned" | "demo";
 }) {
   const { stage, background, set } = useInspectorOptions();
   const setStage = (stage: GrowthStage) => set({ stage }),
     setBackground = (background: Background) => set({ background });
   const stats = useQuery({
-      queryKey: ["collection-stats"],
-      queryFn: api.stats,
+      queryKey: ["collection-stats", scope],
+      queryFn: () =>
+        scope === "demo"
+          ? request<CollectionStats>("/demo/collection/stats")
+          : api.stats(),
     }),
     birth = useQuery({
-      queryKey: ["birth", p.id],
-      queryFn: () => api.birth(p.id),
+      queryKey: ["birth", p.id, scope],
+      queryFn: () =>
+        scope === "demo"
+          ? request<{ event: BreedingEventDto | null }>(
+              "/demo/plants/" + p.id + "/birth",
+            )
+          : api.birth(p.id),
     });
   useEffect(() => {
     setStage("flowering");
@@ -54,6 +67,13 @@ export function PlantRecord({
         </div>
       </div>
       <aside className="study-panel">
+        {scope === "owned" ? (
+          <PlantGameActions plant={p} />
+        ) : (
+          <p className="study-notice">
+            Read-only reference · original identity and provenance preserved.
+          </p>
+        )}
         <div className="detail-badges">
           <span
             className={"rarity-badge rarity-" + p.rarity.tier.toLowerCase()}
@@ -198,14 +218,18 @@ export function PlantRecord({
           background={background}
           plant={p}
         />
-        <div className="detail-links">
-          <Link className="text-link" to={"/lab?plant=" + p.id}>
-            Study genome →
-          </Link>
-          <Link className="text-link" to={"/breed?parent=" + p.id}>
-            Use as parent →
-          </Link>
-        </div>
+        {scope === "owned" && (
+          <div className="detail-links">
+            <Link className="text-link" to={"/lab?plant=" + p.id}>
+              Study genome →
+            </Link>
+            {p.gameEligible && !p.soldAt && (
+              <Link className="text-link" to={"/breed?parent=" + p.id}>
+                Use as parent →
+              </Link>
+            )}
+          </div>
+        )}
       </aside>
     </section>
   );

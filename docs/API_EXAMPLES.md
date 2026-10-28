@@ -1,52 +1,52 @@
-# Plant Laboratory API
+# Botanica API examples
 
-All endpoints use relative URLs under `/api/v1`. This is a single-owner local sandbox without authentication. The server fixes the sandbox owner; clients cannot assign ownership, ancestry, mutation outcomes, rarity or breeding seeds. Errors use `{error:{code,message,details?}}`.
+All URLs below are relative to `http://localhost:8155/api/v1` (or the configured HTTPS public origin). Health remains `GET /health`. Catalog, phenotype resolution and SVG preview are stateless public operations. Player-owned routes require the HttpOnly session cookie; writes additionally require an approved `Origin` and `X-CSRF-Token` returned by authentication or `GET /me`.
 
-## Design and save
+## Session and recovery
 
-```sh
-curl -fsS http://localhost:8155/api/v1/catalog/species
-curl -fsS -X POST http://localhost:8155/api/v1/plants \
-  -H 'Content-Type: application/json' \
-  -d '{"speciesId":"velvetleaf","name":"My study","genome":{"pigment":["P","G"],"leafShape":["L","O"],"leafPattern":["V","S"],"growthHabit":["B","C"],"flowerColor":["R","W"],"flowerDensity":["H","M"]}}'
+- `POST /auth/register` and `POST /auth/login`: `{ "username": "your_name", "password": "your private password" }`. Usernames are case-insensitive, 3–24 ASCII letters/digits/underscores; passwords are 10–128 characters.
+- Signup returns five `recoveryCodes` once. Save them privately. `POST /auth/recover` takes username, new password and `recoveryCode`; a code works once and revokes prior sessions.
+- `GET /me`: current identity, coins, XP, level and CSRF token. `POST /auth/logout` revokes the current session. Never put passwords, cookies or recovery codes in logs or URLs.
+
+## Game operations
+
+`GET /game/state` returns the authoritative aggregate: player HUD, seed inventory, greenhouses with slots/timestamps, quests, shop/research unlocks, workers and the most recent offline calculation. Server UTC timestamps govern growth. Relevant reads/mutations reconcile bounded work under the player's row lock.
+
+`POST /game/action` uses this envelope; generate a UUID once per intended operation and reuse it after a network failure:
+
+```json
+{
+  "action": "plant",
+  "requestId": "a newly generated UUID",
+  "data": { "slotId": "your owned empty slot UUID", "seedType": "starter" }
+}
 ```
 
-A designed plant is a generation 0 founder. An optional signed-int32 `visualSeed` controls cosmetics; otherwise the server generates it securely. Named mutation flags are accepted only by non-persistent preview endpoints. The UI makes manual preview flags explicit and never saves them as bred mutations. Plant names contain 1–60 characters. Extra or immutable client fields are rejected.
+Operation data:
 
-## Collection and details
+| action | data |
+|---|---|
+| plant | slotId, seedType: starter/uncommon/rare |
+| harvest | slotId |
+| purchase | itemId from state.shop, optional owned houseId |
+| sell | plantId |
+| flags | plantId, favorite: boolean, protected: boolean |
+| claim | questId from state.quests |
+| research | researchId from state.research |
+| hire | kind: gardener/breeder |
+| assign | workerId, greenhouseId, enabled, policy |
 
-```sh
-curl -fsS 'http://localhost:8155/api/v1/plants?limit=24&pigment=purple&pattern=marbled&sort=rarity'
-curl -fsS 'http://localhost:8155/api/v1/plants?q=Fern&sort=name'
-curl -fsS http://localhost:8155/api/v1/plants/10000000-0000-4000-8000-000000000001
-curl -fsS http://localhost:8155/api/v1/collection/stats
-```
+Policy fields: `mode` (repeat_crop/repeat_cross/target_trait), `seedType`, `autoSell` (false by default), `reserveCoins` (default 100), optional `parentAId`/`parentBId`, `targetPigment` and `targetPattern`. Breeders require two owned unsold game-grown parents. Target mode requires Selective breeding research and protects matching results without changing their odds. Saving a recipe starts it from the save time; no retroactive use of the new recipe.
 
-Lists return `{items,nextCursor,total}`. Pass an opaque `nextCursor` back as URL-encoded `cursor` with the same filters and sort. Limits are 1–100, default 24. Filters: `species`, `pigment`, `pattern`, `rarity`; `q` searches names, IDs, expressed pigment and pattern (up to 80 characters; wildcard characters are literal). Sorts: `newest`, `oldest`, `name`, `rarity`. UUID ties make every order stable; timestamp cursors retain PostgreSQL microseconds. Changing a cursor's filter/sort context returns 400. Counts describe the actual saved collection, independently of versioned rarity scores.
+The server validates prices, inventory, level, ownership and readiness. Reusing a request ID for different content returns 409. Receipt retries replay the stored result. Pending large offline backlogs return `OFFLINE_PENDING`; fetch state to process subsequent batches before spending newly obtained resources. Sales preserve ancestry rows and exclude sold specimens from inventory. Protected/favorite plants cannot be sold; automated sales additionally exclude first discoveries, non-Common plants and the last specimen of a species.
 
-Each plant DTO includes canonical genome, resolved phenotype, named modifiers, parents, generation, owner, name, origin, creation time, genome/renderer versions, visual seed and persisted birth rarity score/tier/reasons/policy version. `/plants/:id/birth` returns `{event}` for bred children or `{event:null}` for founders. No read operation rerolls inheritance, mutations or rarity.
+## Collection and genetics
 
-## Breed saved parents
+- `GET /plants?limit=24&sort=newest`: own unsold plants; optional q, species, pigment, pattern, rarity and cursor. Sorts: newest/oldest/name/rarity. Cursor is bound to its filter/sort; reset it after changing either.
+- `GET /plants/:id`, `/plants/:id/birth`, `/collection/stats`, `GET /breeding`: owned detail, ancestry/event and collection/journal data. Sold records remain readable to their owner for lineage.
+- `POST /breeding`: `{ "parentAId": "owned grown UUID", "parentBId": "another owned grown UUID", "idempotencyKey": "new UUID" }`. Costs 75 coins at level 3. Authoritative genetics creates and records the child once, retaining both parents.
+- `POST /plants`: advanced study only. Accepts speciesId, valid genome, name and optional cosmetic visualSeed. Excludes game rewards; no client-supplied rarity, mutations or ownership claims. This existing creative save operation is outside the monetary receipt API.
+- `GET /demo/plants?limit=100` and `/demo/plants/:id`: authenticated read-only reference herbarium. It never becomes player inventory.
+- `POST /phenotype/resolve`: speciesId, paired-allele genome and optional preview mutations/catalogVersion. `POST /preview` additionally accepts visualSeed, growthStage (seedling/juvenile/mature/flowering), rendererVersion and background (warm/transparent). Outputs deterministic original SVG; no persisted game plant is created.
 
-```sh
-curl -fsS -X POST http://localhost:8155/api/v1/breeding \
-  -H 'Content-Type: application/json' \
-  -d '{"parentAId":"10000000-0000-4000-8000-000000000001","parentBId":"10000000-0000-4000-8000-000000000002","idempotencyKey":"90000000-0000-4000-8000-000000000001"}'
-curl -fsS 'http://localhost:8155/api/v1/breeding?limit=12'
-```
-
-The POST returns `{plant,event}`. Use a fresh UUID key for each intended new cross; reuse the same key for retries. Concurrent identical keys return the original child/event. Reusing a key for another parent pair returns 409. Two distinct owned parents and an approved compatibility rule are required. A single transaction records the child, its parents, secure event seed, engine version and mutation log. Errors or transaction failure leave no orphan child. Generation is `max(parent generations)+1`.
-
-## Preview and exports
-
-`POST /phenotype/resolve` accepts a genome with `speciesId`, optional `mutations` and `catalogVersion:1`; it returns phenotype and rarity preview. `POST /preview` additionally accepts `visualSeed`, `growthStage`, `rendererVersion:1` and `background`; it returns a self-contained SVG string. The browser uses the identical pure renderer for live preview and SVG/PNG downloads. JSON export contains the saved canonical plant DTO and lineage. Image stage/background choices are cosmetic and do not change stored plants.
-
-## Responses and limits
-
-- 400: malformed UUID, unknown allele/version/species, extra fields, invalid query/cursor.
-- 404: missing or non-owned plant.
-- 409: incompatible species, same parent twice, idempotency key conflict.
-- 500: generic unexpected failure, without SQL details or secrets.
-- `/health` is outside `/api/v1`: 200 when the DB query succeeds, 503 otherwise.
-
-The demo seed creates exactly 100 fixed-ID specimens, including two named parents. Re-running it fills missing examples and never overwrites saved plant genomes or ancestry. Demonstration mutations are curated illustrations, not claims about breeding frequency.
+Errors use `{ "error": { "code": "...", "message": "..." } }`; 401 means sign in, 403 means origin/CSRF rejection, 404 conceals inaccessible records, 409 indicates a game constraint and 429 throttles auth attempts. No client-provided owner ID is authoritative.

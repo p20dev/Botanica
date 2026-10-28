@@ -32,6 +32,7 @@ export interface GameSlot {
   seedType: SeedType | null;
   plantedAt: string | null;
   readyAt: string | null;
+  ready: boolean;
   visualSeed: number | null;
   phenotype: import("@botanica/genetics").Phenotype | null;
 }

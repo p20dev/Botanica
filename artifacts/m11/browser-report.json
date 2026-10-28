@@ -1,0 +1,116 @@
+{
+  "checks": [
+    "Register, one-time recovery UI and isolated four-slot greenhouse",
+    "Live server-synchronized countdown advances between state polls",
+    "Cryptographic action IDs work without secure-context randomUUID (HTTP LAN compatibility)",
+    "Harvest, discovery, favorite safeguard, confirmed sale and one-time quest claims",
+    "Exact-price seed and growing-slot purchases",
+    "Paid inherited breeding, persisted lineage and favorite child",
+    "Advanced genome lab, deterministic renderer atlas and preserved reference herbarium",
+    "Late-game fixtures: upgrades, second house, research, worker policies and replay-safe hour offline",
+    "All gameplay routes usable at 360px and 1440px with reduced motion",
+    "Logout and password login restore only the same account",
+    "Unauthenticated collection access denied",
+    "Public HTTPS through Cloudflare: authenticated cookie is Secure, HttpOnly and SameSite=Lax",
+    "No browser JavaScript errors"
+  ],
+  "errors": [],
+  "widths": [
+    {
+      "route": "/",
+      "width": 1440,
+      "overflow": 0
+    },
+    {
+      "route": "/shop",
+      "width": 1440,
+      "overflow": 0
+    },
+    {
+      "route": "/gallery",
+      "width": 1440,
+      "overflow": 0
+    },
+    {
+      "route": "/breed",
+      "width": 1440,
+      "overflow": 0
+    },
+    {
+      "route": "/workers",
+      "width": 1440,
+      "overflow": 0
+    },
+    {
+      "route": "/research",
+      "width": 1440,
+      "overflow": 0
+    },
+    {
+      "route": "/quests",
+      "width": 1440,
+      "overflow": 0
+    },
+    {
+      "route": "/settings",
+      "width": 1440,
+      "overflow": 0
+    },
+    {
+      "route": "/lab",
+      "width": 1440,
+      "overflow": 0
+    },
+    {
+      "route": "/",
+      "width": 360,
+      "overflow": 0
+    },
+    {
+      "route": "/shop",
+      "width": 360,
+      "overflow": 0
+    },
+    {
+      "route": "/gallery",
+      "width": 360,
+      "overflow": 0
+    },
+    {
+      "route": "/breed",
+      "width": 360,
+      "overflow": 0
+    },
+    {
+      "route": "/workers",
+      "width": 360,
+      "overflow": 0
+    },
+    {
+      "route": "/research",
+      "width": 360,
+      "overflow": 0
+    },
+    {
+      "route": "/quests",
+      "width": 360,
+      "overflow": 0
+    },
+    {
+      "route": "/settings",
+      "width": 360,
+      "overflow": 0
+    },
+    {
+      "route": "/lab",
+      "width": 360,
+      "overflow": 0
+    }
+  ],
+  "fixtures": [
+    "Only new QA account: level 10 and ledger-recorded 20,000-coin grant for late-game UI",
+    "Only QA workers: persisted cursors shifted back one hour"
+  ],
+  "playerId": "f73386a2-4c60-4bdf-b0cf-3846080f6128",
+  "childId": "eec3ce1a-661f-4764-a209-4ae897ced24e"
+}

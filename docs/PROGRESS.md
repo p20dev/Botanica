@@ -5,6 +5,13 @@
 - [x] M2 — procedural illustrated SVG renderer, exports, visual QA.
 - [x] M3 — lab editor, server persistence, breeding flow.
 - [x] M4 — gallery, provenance, UX polish, full acceptance.
+- [x] M5 — accounts, recovery, ownership and safe bootstrap.
+- [x] M6 — greenhouse home and responsive game shell.
+- [x] M7 — integer economy, shop and protected collection actions.
+- [x] M8 — growth, progression, quests, upgrades and research.
+- [x] M9 — paid breeding and phenotype discoveries.
+- [x] M10 — workers and bounded, replay-safe offline progress.
+- [x] M11 — playability, visual/accessibility polish and final delivery checks.
 
 ## M0 — 2026-10-28
 
@@ -103,3 +110,21 @@ The idempotent seed now contains exactly 100 fixed-ID deterministic demonstratio
 - Visually reviewed the complete desktop collection, desktop inspector, mobile collection/inspector and error state. Evidence and downloads are in artifacts/m4. Initial browser pagination assertions ran before React finished restoring the list after clearing empty search; the test now waits for the actual list. Keyboard QA found Chrome's native modal tab cycle can stop outside the document; explicit endpoint wrapping fixed it and the full suite passed afterward.
 
 M0–M4 are complete at http://localhost:8155. No known milestone blockers. The app is ready for further local iteration, not public launch: authentication, real owner authorization and throttling remain future work. No M5 economy, accounts or multiplayer were added. The requested .env origin/port are unchanged and excluded from Git.
+
+## M5–M11 game implementation — 2026-10-28
+
+Implemented sequentially under the user's authorization to continue through all seven milestones. See GAME_IMPLEMENTATION_NOTES.md for the detailed migration, rules and verification record.
+
+- [x] M5: transactional account bootstrap, Argon2id, hashed sessions, CSRF, throttling, recovery codes and ownership-scoped access. Original sandbox remains separate and read-only.
+- [x] M6: illustrated greenhouse home, responsive game navigation, inventory/HUD/quest tracker and real plant/harvest actions.
+- [x] M7: integer coin ledger, atomic/idempotent purchase/sale, seed recycling, favorites and protection. Concurrent overspend/double-sale checks pass.
+- [x] M8: server UTC growth, level/XP progression, twelve one-time quests, research, extra slots/equipment and second greenhouse.
+- [x] M9: paid level-3 genetic crosses, owned mature parent eligibility, preserved lineage and unique phenotype discoveries.
+- [x] M10: paused-by-default gardeners/breeders, real-resource recipes, protected target matches, persisted per-worker summaries, serialized bounded offline reconciliation and opt-in safe Common-duplicate auto-sale. Controlled one-hour concurrency/replay and two-day backlog checks pass.
+- [x] M11: final game presentation, accessible named controls, server-confirmed readiness, compact HUD and reduced motion. Complete browser smoke passes, including desktop/mobile and public HTTPS authentication.
+
+The 103 pre-existing plants match their before-migration checksum for identity, owner, genome, visual seed, generation and parentage. No data volume was reset. Existing laboratory, renderer atlas, collection filtering, inspectors, ancestry and exports remain available. The original archive is inspectable/exportable through read-only reference routes, including records beyond the first 100 examples.
+
+Verified so far: full workspace typecheck; npm production build; 16 existing unit/domain/API tests and 16 SVG source files; all 13 isolated PostgreSQL acceptance cases; Compose config/build/start/status and proxied health. Only web publishes port 8155. The literal .env origin/port are unchanged. Initial signup SQL parameter typing, controlled-checkbox feedback and client/server harvest-boundary issues found during acceptance were corrected; server readiness now gates harvest while the local countdown remains smooth.
+
+Final browser acceptance: all 13 checks passed with no JavaScript page errors; nine routes fit 360px and 1440px with zero horizontal overflow. Early gameplay used real growth timers. Explicit late-game fixtures were limited to the new QA account (ledger-recorded coins/XP and shifted worker cursors); worker replay, research, upgrades and second-house UI passed, and QA workers were paused afterward. Actual Cloudflare HTTPS login restored the correct player with Secure, HttpOnly, SameSite=Lax cookie. Screenshots and factual reports are in artifacts/m11. See GAME_IMPLEMENTATION_NOTES.md for practical limits (single species, request-driven bounded workers, local throttle counters, no recovery-code rotation or sound). No milestone blocker remains; M5–M11 are complete.

@@ -68,8 +68,8 @@ export function Collection() {
               : "Your saved plants, their inherited traits and the stories behind them."}
           </p>
         </div>
-        <Link className="button-link secondary" to="/lab">
-          Create a plant →
+        <Link className="button-link secondary" to="/">
+          Grow a plant →
         </Link>
       </section>
       <section className="collection-filters" aria-label="Collection filters">
@@ -176,7 +176,10 @@ export function Collection() {
                   >
                     {p.rarity.tier}
                   </span>
-                  <span>Gen {p.generation}</span>
+                  <span>
+                    {p.isFavorite ? "★ " : ""}
+                    {p.isProtected ? "Protected · " : ""}Gen {p.generation}
+                  </span>
                 </div>
                 <PlantPreview
                   phenotype={p.phenotype}
@@ -192,11 +195,15 @@ export function Collection() {
                 <div className="collection-card-footer">
                   <span>{p.phenotype.leafPattern}</span>
                   <span>
-                    {p.creationSource === "demo"
-                      ? "Demo study"
-                      : p.creationSource === "bred"
-                        ? "Bred offspring"
-                        : "Designed founder"}
+                    {p.firstDiscovery
+                      ? "First discovery"
+                      : p.gameEligible && p.creationSource !== "bred"
+                        ? "Greenhouse grown"
+                        : p.creationSource === "demo"
+                          ? "Demo study"
+                          : p.creationSource === "bred"
+                            ? "Bred offspring"
+                            : "Designed founder"}
                   </span>
                 </div>
               </button>
@@ -208,7 +215,8 @@ export function Collection() {
           <h2>No plants match these filters</h2>
           <p>
             Try a different trait or clear your search to see the whole
-            collection.
+            collection. Harvest a crop in your greenhouse to add your first
+            specimen.
           </p>
           <button className="secondary" onClick={clear}>
             Show all plants

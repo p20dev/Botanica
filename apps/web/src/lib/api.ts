@@ -17,6 +17,10 @@ export class RequestError extends Error {
     super(message);
   }
 }
+let csrfToken = "";
+export function setCsrf(token: string) {
+  csrfToken = token;
+}
 export async function request<T>(
   url: string,
   options: RequestInit = {},
@@ -25,7 +29,12 @@ export async function request<T>(
   try {
     response = await fetch("/api/v1" + url, {
       ...options,
-      headers: { "Content-Type": "application/json", ...options.headers },
+      credentials: "same-origin",
+      headers: {
+        "Content-Type": "application/json",
+        "X-CSRF-Token": csrfToken,
+        ...options.headers,
+      },
     });
   } catch {
     throw new RequestError(
@@ -86,5 +95,5 @@ export async function loadAllParents() {
     items.push(...page.items);
     cursor = page.nextCursor;
   } while (cursor && items.length < 1000);
-  return items;
+  return items.filter((p) => p.gameEligible && !p.soldAt);
 }

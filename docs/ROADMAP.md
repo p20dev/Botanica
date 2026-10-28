@@ -1,14 +1,13 @@
-# Future development after Plant Laboratory
+# Botanica roadmap
 
-M0–M4 establish a local illustrated plant laboratory with deterministic genetics, original vector rendering, persistent breeding and a traceable collection.
+M0–M4 supply deterministic genetics, original SVG rendering, persisted ancestry and the laboratory. M5–M11 add accounts, the greenhouse game, integer economy, progression, paid crosses and opt-in offline workers. See PROGRESS.md and GAME_IMPLEMENTATION_NOTES.md for delivered gates and actual checks.
 
-Future milestones should be designed and gated separately:
+Possible later work, requiring its own plan:
 
-1. Authentication, ownership enforcement for real accounts, access control, request throttling and deployment hardening before public exposure. The current fixed sandbox owner is not authentication.
-2. Greenhouse progression: pots, seeds, resources and an explicit economy, with server-authoritative transactions.
-3. Offline progression based on persisted event timestamps; test clock changes, retries and race conditions before adding automation.
-4. Research, upgrades and achievements, with versioned balance rules and migration policies.
-5. Additional species with authored botanical grammars, family-scoped allele catalogs and explicitly approved hybrid rules.
-6. Social trading or multiplayer only after account security, provenance and economic invariants have been reviewed.
+1. More species with authored botanical grammars, family-scoped allele catalogs and explicit hybrid rules.
+2. Balance tuning from real play sessions, additional seed genomes and a broader discovery notebook.
+3. Recovery-code rotation and account management beyond the current one-time codes/password recovery.
+4. Distributed login throttling only if deployment ever gains multiple API instances.
+5. Additional worker policies and quality-of-life tools, with the same resource and protection invariants.
 
-Do not add these systems implicitly to the laboratory. Preserve stored genomes, seeds, versions and ancestry as the model evolves. Future rarity policy changes require an explicit, reviewed recomputation migration rather than silently changing birth classifications.
+Stored genomes, seeds, versions and ancestry remain authoritative. A rarity-policy change needs an explicit migration; never silently recompute birth classifications. No real-money currency, trading or multiplayer is part of this delivery.

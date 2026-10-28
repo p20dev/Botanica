@@ -57,8 +57,9 @@ export function Lab() {
           <p className="eyebrow">The plant laboratory</p>
           <h1>Grow something unexpected.</h1>
           <p>
-            Edit paired alleles and see their expression. Save a designed
-            founder, then cross saved plants in the breeding lab.
+            Edit paired alleles and see their expression. Save a creative study
+            or inspect a grown plant. Game breeding uses mature greenhouse
+            specimens.
           </p>
         </div>
         <Link className="button-link secondary" to="/breed">

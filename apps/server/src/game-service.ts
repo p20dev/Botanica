@@ -1018,6 +1018,7 @@ export class GameService {
               seedType: s.seed_type,
               plantedAt: s.planted_at?.toISOString() ?? null,
               readyAt: s.ready_at?.toISOString() ?? null,
+              ready: !!s.ready_at && s.ready_at <= now,
               visualSeed: s.visual_seed,
               phenotype: s.genome
                 ? resolvePhenotype("velvetleaf", s.genome)

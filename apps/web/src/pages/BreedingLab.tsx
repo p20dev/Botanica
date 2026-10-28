@@ -6,6 +6,8 @@ import { PlantPreview } from "../components/PlantPreview";
 import { QueryMessage } from "../components/QueryMessage";
 import { api, loadAllParents } from "../lib/api";
 import type { PlantDto } from "@botanica/shared";
+import { useGame } from "../lib/game";
+import { newRequestId } from "../lib/requestId";
 function Parent({
   label,
   id,
@@ -22,7 +24,11 @@ function Parent({
     <section className="parent-card">
       <label>
         {label}
-        <select value={id} onChange={(e) => onChange(e.target.value)}>
+        <select
+          aria-label={label}
+          value={id}
+          onChange={(e) => onChange(e.target.value)}
+        >
           <option value="">Choose a saved plant</option>
           {plants.map((p) => (
             <option key={p.id} value={p.id}>
@@ -58,6 +64,7 @@ function Parent({
   );
 }
 export function BreedingLab() {
+  const game = useGame();
   const [search] = useSearchParams();
   const parents = useQuery({ queryKey: ["parents"], queryFn: loadAllParents }),
     [a, setA] = useState(search.get("parent") ?? ""),
@@ -72,6 +79,7 @@ export function BreedingLab() {
   const cross = useMutation({
     mutationFn: api.cross,
     onSuccess: () => {
+      void client.invalidateQueries({ queryKey: ["game"] });
       void client.invalidateQueries({ queryKey: ["parents"] });
       void client.invalidateQueries({ queryKey: ["plants"] });
       void client.invalidateQueries({ queryKey: ["collection-stats"] });
@@ -109,7 +117,7 @@ export function BreedingLab() {
   function breed() {
     const pair = a + ":" + b;
     if (!key.current || key.current.pair !== pair)
-      key.current = { pair, id: crypto.randomUUID() };
+      key.current = { pair, id: newRequestId() };
     cross.mutate({
       parentAId: a,
       parentBId: b,
@@ -128,7 +136,7 @@ export function BreedingLab() {
           </p>
         </div>
         <Link className="button-link secondary" to="/lab">
-          Design a parent →
+          Advanced genetics →
         </Link>
       </section>
       {parents.isPending ? (
@@ -141,9 +149,12 @@ export function BreedingLab() {
       ) : !list.length ? (
         <div className="empty">
           <h2>No saved parents yet</h2>
-          <p>Design and save two plants in the laboratory.</p>
-          <Link className="text-link" to="/lab">
-            Open laboratory →
+          <p>
+            Grow and harvest two plants in your greenhouse. Breeding unlocks at
+            level 3 and costs {game.breedCost} coins; both parents are kept.
+          </p>
+          <Link className="text-link" to="/">
+            Open greenhouse →
           </Link>
         </div>
       ) : (
@@ -167,9 +178,23 @@ export function BreedingLab() {
           </div>
           <section className="cross-controls">
             <p role="status">{message}</p>
+            <p>
+              {game.player.level < 3
+                ? "Reach level 3 to unlock breeding."
+                : game.player.coins < game.breedCost
+                  ? "Not enough coins for this cross."
+                  : `${game.breedCost} coins per cross · instant offspring · parents kept.`}
+            </p>
             <button
               onClick={breed}
-              disabled={!compatible || cross.isPending || !!cross.data}
+              disabled={
+                !compatible ||
+                cross.isPending ||
+                !!cross.data ||
+                game.player.level < 3 ||
+                game.player.coins < game.breedCost ||
+                game.pendingWork
+              }
             >
               {cross.isPending
                 ? "Crossing…"
