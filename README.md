@@ -48,4 +48,3 @@ Genetics v1 uses fixed-locus diploid genomes, explicit dominance, seeded Mulberr
 Velvetleaf is composed from 15 original handcrafted SVG primitives and six curated palettes. `npm run assets:write` regenerates standalone primitive sources from the typed paths; tests reject source drift. `assets/README.md` documents CC0 artwork provenance. Geometry is deterministic and all exported assets are self-contained.
 
 For optional browser acceptance QA, install/provide Playwright and Chrome, then run `node scripts/verify-m2.cjs` against the running Compose app. `PLAYWRIGHT_MODULE` may point to an available Playwright package and `BROWSER_EXECUTABLE` to a browser binary. The script checks desktop/mobile overflow, 12/100 rendering studies, namespace collisions, seed invariance, real downloads, PNG alpha/background and pixel equivalence to the live preview. Screenshots and measurements are written to `artifacts/m2`.
-
