@@ -4,7 +4,7 @@ services:
     build:
       context: .
       dockerfile: apps/web/Dockerfile
-    ports: ["127.0.0.1:${HOST_PORT:-8155}:8080"]
+    ports: ["${HOST_BIND:-0.0.0.0}:${HOST_PORT:-8155}:8080"]
     depends_on:
       api:
         condition: service_healthy

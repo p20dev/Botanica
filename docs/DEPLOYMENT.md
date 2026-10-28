@@ -51,4 +51,8 @@ The seed now creates exactly 100 fixed-ID demonstration specimens, including the
 
 Run the isolated acceptance database with `npm run test:integration`, then `docker compose -f compose.test.yaml down`. That Compose project uses a tmpfs database, no persistent volume and no published ports. It neither resets nor connects to the application's named volume. The deliberate rollback test logs an expected PostgreSQL exception while checking that the API returns only a safe generic response.
 
-API examples and cursor/idempotency contracts are documented in `docs/API_EXAMPLES.md`. Before any public deployment add real identity, owner authorization, rate limits, TLS/access controls and operational backup/restore checks. The current published address remains loopback-only. Future game scope is documented in `docs/ROADMAP.md` and is not implemented.
+API examples and cursor/idempotency contracts are documented in `docs/API_EXAMPLES.md`. Before any public deployment add real identity, owner authorization, rate limits, TLS/access controls and operational backup/restore checks. The original milestone deployment used loopback-only publication; see the LAN tunnel configuration below for the current binding. Future game scope is documented in `docs/ROADMAP.md` and is not implemented.
+
+## LAN tunnel configuration — 2026-10-28
+
+The owner configured botanica.p20.dev to use origin http://192.168.1.197:8155. Web publication therefore uses ${HOST_BIND:-0.0.0.0}:${HOST_PORT:-8155}:8080 so the tunnel can reach the host over LAN. HOST_BIND can be set to 127.0.0.1 for loopback-only access. API and PostgreSQL remain unpublished. HOST_PORT=8155 and PUBLIC_DOMAIN=http://localhost in .env were preserved; PUBLIC_DOMAIN is not a hostname allowlist.

@@ -14,7 +14,7 @@ docker compose ps
 curl -fsS http://localhost:8155/health
 ```
 
-Open http://localhost:8155. Only the web entrypoint is published, bound to loopback. API and PostgreSQL stay on the Compose network. The one-shot bootstrap service applies transaction-locked, tracked migrations, then seeds the sandbox owner/catalog and 100 deterministic demo plants. Repeat runs do not duplicate or overwrite plants. A named volume retains your collection across `docker compose down` / `up`. Do not use `down -v` unless intentionally deleting all saved data.
+Open http://localhost:8155. Only the web entrypoint is published. It binds to all host interfaces by default so the configured Cloudflare tunnel can reach `http://192.168.1.197:8155`; set `HOST_BIND=127.0.0.1` in the deployment environment for loopback-only access. API and PostgreSQL stay on the Compose network. The one-shot bootstrap service applies transaction-locked, tracked migrations, then seeds the sandbox owner/catalog and 100 deterministic demo plants. Repeat runs do not duplicate or overwrite plants. A named volume retains your collection across `docker compose down` / `up`. Do not use `down -v` unless intentionally deleting all saved data.
 
 ## Explore
 
